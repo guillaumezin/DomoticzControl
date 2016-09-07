@@ -1,5 +1,5 @@
-squeezebox-googlemusic
-======================
+Domoticz Control
+================
 
 This is a [Squeezebox](http://www.mysqueezebox.com) (Logitech Media Server) plugin for controling [Domoticz](https://domoticz.com) devices from your Jive based player screen (Squeezebox radio, Squeezebox Touch, UE Smart Radio with squeezebox firmware).
 
