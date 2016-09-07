@@ -12,7 +12,7 @@
             <desc lang="FR">Contrôle de vos périphériques Domoticz depuis votre platine basée sur Jive</desc>
             <creator>Guillaume Zin</creator>
             <url>http://guillaumezin.github.com/DomoticzControl/repository/DomoticzControl-v1.0.0.zip</url>
-            <sha>6b8629ba57d2104b530238234509c4d007660a39</sha>
+            <sha>db0648e13ec54bc78b77d463079ccf544f7d70f2</sha>
             <link>https://github.com/guillaumezin/DomoticzControl</link>
             </plugin>
     </plugins>
