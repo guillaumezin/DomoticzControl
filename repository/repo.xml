@@ -1,0 +1,18 @@
+<extensions>
+    <details>
+        <title lang="EN">Domoticz Control Plugins</title>
+        <title lang="FR">Plugins de contrôle Domoticz</title>
+    </details>
+    <plugins>
+        <plugin name="DomoticzControl" version="1.0.0" minTarget="7.4" maxTarget="*">
+            <title lang="EN">Domoticz controller</title>
+            <desc lang="EN">Control your Domoticz devices from your Jive based player</desc>
+            <title lang="FR">Contrôle Domoticz</title>
+            <desc lang="FR">Contrôle de vos périphériques Domoticz depuis votre platine basée sur Jive</desc>
+            <creator>Guillaume Zin</creator>
+            <url>http://guillaumezin.github.com/repository/DomoticzControl-v1.0.0.zip</url>
+            <sha>6b8629ba57d2104b530238234509c4d007660a39</sha>
+            <link>https://github.com/guillaumezin/DomoticzControl</link>
+            </plugin>
+    </plugins>
+</extensions>
