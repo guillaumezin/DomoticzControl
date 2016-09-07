@@ -2,7 +2,7 @@
 <extension>
   <name>PLUGIN_DOMOTICZCONTROL</name>
   <creator>Guillaume Zin</creator>
-  <defaultState>disabled</defaultState>
+  <defaultState>enabled</defaultState>
   <icon>plugins/DomoticzControl/html/images/icon.png</icon>  
   <playerMenu>PLUGINS</playerMenu> 
   <description>PLUGIN_DOMOTICZCONTROL_DESC</description>
