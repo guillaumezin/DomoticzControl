@@ -1,0 +1,94 @@
+[% BLOCK alarmSettingDomoticzControl %]
+	[% WRAPPER settingSection %]
+                [% settingTitle1 = "PLUGIN_DOMOTICZCONTROL_ALARM" | string %]
+                [% settingTitle2 = "PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARM" | string %]
+                [% settingTitle = settingTitle1 _ " " _ loop.count _ " - " _ settingTitle2 %]
+                [% settingName = "alarmId" _ alarm.id %]
+		[% WRAPPER settingGroup title=settingTitle desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARMDOC" %]
+                        <input type="number" min="0" name="[% settingName %]" id="[% settingName %]" value="[% alarm.alarm ? alarm.alarm : "0" %]"/>
+		[% END %]
+                [% settingTitle1 = "PLUGIN_DOMOTICZCONTROL_ALARM" | string %]
+                [% settingTitle2 = "PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZE" | string %]
+                [% settingTitle = settingTitle1 _ " " _ loop.count _ " - " _ settingTitle2 %]
+                [% settingName = "snoozeId" _ alarm.id %]
+		[% WRAPPER settingGroup title=settingTitle desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZEDOC" %]
+                        <input type="number" min="0" name="[% settingName %]" id="[% settingName %]" value="[% alarm.snooze ? alarm.snooze : "0" %]"/>
+		[% END %]
+	[% END %]
+
+[% END %]
+
+[% PROCESS settings/header.html %]
+
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_ADDRESS" desc="" %]
+                    <input type="text" name="pref_address" id="address" value="[% prefs.pref_address %]"/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HTTPS" desc="" %]
+                    <input type="checkbox" name="pref_https" id="https" [% IF prefs.pref_https %]checked[% END %]/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_USER" desc="" %]
+                    <input type="text" name="pref_user" id="user" value="[% prefs.pref_user %]"/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_PASSWORD" desc="" %]
+                    <input type="password" name="pref_password" id="password" value="[% prefs.pref_password %]"/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_PORT" desc="" %]
+                    <input type="number" min="1" max="65535" name="pref_port" id="port" value="[% prefs.pref_port %]"/>
+                [% END %]
+
+<br/>
+
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_ONLYFAVORITES" desc="" %]
+                    <input type="checkbox" name="pref_onlyFavorites" id="onlyFavorites" [% IF prefs.pref_onlyFavorites %]checked[% END %]/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_ONLYUNPROCTECTED" desc="" %]
+                    <input type="checkbox" name="pref_onlyUnproctected" id="onlyUnproctected" [% IF prefs.pref_onlyUnproctected %]checked[% END %]/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDESCENES" desc="" %]
+                    <input type="checkbox" name="pref_hideScenes" id="hideScenes" [% IF prefs.pref_hideScenes %]checked[% END %]/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEONOFF" desc="" %]
+                    <input type="checkbox" name="pref_hideOnOff" id="hideOnOff" [% IF prefs.pref_hideOnOff %]checked[% END %]/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEDIMMERS" desc="" %]
+                    <input type="checkbox" name="pref_hideDimmers" id="hideDimmers" [% IF prefs.pref_hideDimmers %]checked[% END %]/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEBLINDS" desc="" %]
+                    <input type="checkbox" name="pref_hideBlinds" id="hideBlinds" [% IF prefs.pref_hideBlinds %]checked[% END %]/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERBYNAME" desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTEREMPYDISABLE" %]
+                    <input type="text" name="pref_filterByName" id="filterByName" value="[% prefs.pref_filterByName %]"/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERBYDESCRIPTION" desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTEREMPYDISABLE" %]
+                    <input type="text" name="pref_filterByDescription" id="filterByDescription" value="[% prefs.pref_filterByDescription %]"/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERBYPLANID" desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTER0DISABLE" %]
+                    <input type="number" min="0" name="pref_filterByPlanId" id="filterByPlanId" value="[% prefs.pref_filterByPlanId %]"/>
+                [% END %]
+
+<br/>
+
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_DIMMERASONOFF" desc="" %]
+                    <input type="checkbox" name="pref_dimmerAsOnOff" id="dimmerAsOnOff" [% IF prefs.pref_dimmerAsOnOff %]checked[% END %]/>
+                [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_BLINDSPERCENTAGEASONOFF" desc="" %]
+                    <input type="checkbox" name="pref_blindsPercentageAsOnOff" id="blindsPercentageAsOnOff" [% IF prefs.pref_blindsPercentageAsOnOff %]checked[% END %]/>
+                [% END %]
+
+<br/>
+
+                <div class="alarmSection">
+                [% FOREACH alarm = alarms %]
+                        [% PROCESS alarmSettingDomoticzControl %]
+                        <br/>
+                [% END %]
+                </div>
+                
+<br/>
+<br/>
+<a href="http://perldoc.perl.org/perlrequick.html" target="_blank">[% "PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERINGDOC" | string %]</a>
+<br/>
+<br/>
+<br/>
+
+[% PROCESS settings/footer.html %]

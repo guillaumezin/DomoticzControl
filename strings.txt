@@ -1,0 +1,122 @@
+﻿
+# Strings for DomoticzControl
+
+PLUGIN_DOMOTICZCONTROL
+	EN	Domoticz controller
+	FR	Contrôle Domoticz
+
+PLUGIN_DOMOTICZCONTROL_DESC
+	EN	Control your Domoticz devices from your Jive based player. Parameters are located in player settings
+	FR	Contrôle de vos périphériques Domoticz depuis votre platine basée sur Jive. Le paramétrage se fait dans l'onglet platine
+
+PLUGIN_DOMOTICZCONTROL_BASIC_SETTINGS
+	EN	Domoticz Control Settings
+	FR	Réglages Domoticz Control
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_ACCESS
+	EN	Communication with Domoticz
+	FR	Communication avec Domoticz
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_ADDRESS
+	EN	Domoticz URL or IP address
+	FR	URL ou adresse IP de Domoticz
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_USER
+	EN	Domoticz user
+	FR	Utilisateur de Domoticz
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_HTTPS
+	EN	Domoticz URL or IP address uses HTTPS
+	FR	L'URL ou l'adresse IP de Domoticz utilise HTTPS
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_PORT
+	EN	Domoticz URL or IP address port
+	FR	Port de l'URL ou de l'adresse IP de Domoticz
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_PASSWORD
+	EN	Domoticz user password
+	FR	Mot de passe utilisateur de Domoticz
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_SPECIAL
+	EN	Advanced settings
+	FR	Options avancées
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_DIMMERASONOFF
+	EN	Manage dimmers as simple switches
+	FR	Gérer les variateurs comme des boutons simples
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_BLINDSPERCENTAGEASONOFF
+	EN	Manage progressive blinds as simple opened/closed blinds
+	FR	Gérer les volets progressifs comme de simples volets ouverts/fermés
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERS
+	EN	Devices filtering
+	FR	Filtrage des dispositifs
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_ONLYFAVORITES
+	EN	Only dashboard devices
+	FR	Seulement les dipositifs du tableau de bord
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_ONLYUNPROCTECTED
+	EN	Only unprotected devices
+	FR	Seulement les dipositifs non protégés
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDESCENES
+	EN	Hide group and scenes
+	FR	Cacher les groupes et les scènes
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEONOFF
+	EN	Hide simple switches
+	FR	Cacher les boutons simples
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEDIMMERS
+	EN	Hide dimmers
+	FR	Cacher les variateurs
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEBLINDS
+	EN	Hide blinds
+	FR	Cacher les volets
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERBYNAME
+	EN	Filter by name
+	FR	Filter par nom
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERBYDESCRIPTION
+	EN	Filter by description
+	FR	Filter par description
+    
+PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERBYPLANID
+	EN	Filter by plan ID
+	FR	Filtre par numéro de plan
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTEREMPYDISABLE
+	EN	Left empty to disable filtering
+	FR	Laisser vide pour désactiver le filtrage
+	
+PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTER0DISABLE
+	EN	0 to disable filtering
+	FR	0 pour désactiver le filtrage
+    
+PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERINGDOC
+	EN	Advanced filtering techniques for name and/or description filtering
+	FR	Techniques de filtrage avancées pour le filtrage par nom et/ou par description
+
+PLUGIN_DOMOTICZCONTROL_ALARM
+	EN	Alarm
+	FR	Réveil
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARM
+	EN	Idx associated to alarm
+	FR	Idx associé à l'alarme
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARMDOC
+	EN	Triggers the device with this Idx number as the same time as alarm<br/>Sends On/Off commands only, use a virtual switch and a script on Domoticz for more complex needs<br />0 to
+	FR	Déclenche le dispositif avec ce numéro Idx en même temps que l'alarme<br/>Envoie seulement des commandes On/Off, utilisez un bouton virtuel et un script Domoticz pour les besoins plus complexes<br />0 pour désactiver
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZE
+	EN	Idx associated to snooze
+	FR	Idx associé au snooze 
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZEDOC
+	EN	Triggers the device with this Idx number as the same time as snooze<br/>Sends On/Off commands only, use a virtual switch and a script on Domoticz for more complex needs<br />0 to disable
+	FR	Déclenche le dispositif avec ce numéro Idx en même temps que la fonction snooze<br/>Envoie seulement des commandes On/Off, utilisez un bouton virtuel et un script Domoticz pour les besoins plus complexes<br />0 pour désactiver

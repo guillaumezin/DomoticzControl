@@ -1,0 +1,19 @@
+<?xml version='1.0' standalone='yes'?>
+<extension>
+  <name>PLUGIN_DOMOTICZCONTROL</name>
+  <creator>Guillaume Zin</creator>
+  <defaultState>disabled</defaultState>
+  <icon>plugins/DomoticzControl/html/images/icon.png</icon>  
+  <playerMenu>PLUGINS</playerMenu> 
+  <description>PLUGIN_DOMOTICZCONTROL_DESC</description>
+  <homepageURL>https://github.com/guillaumezin/DomoticzControl</homepageURL>
+  <id>4B43C942-123B-11DD-918A-A46E51C8A91E</id>
+  <module>Plugins::DomoticzControl::Plugin</module>
+  <targetApplication>
+    <id>Logitech Media Server</id>
+    <maxVersion>7.*</maxVersion>
+    <minVersion>7.4.0</minVersion>
+  </targetApplication>
+  <type>2</type>
+  <version>1.0.0</version>
+</extension>
