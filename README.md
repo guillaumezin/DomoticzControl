@@ -6,7 +6,7 @@ This is a [Squeezebox](http://www.mysqueezebox.com) (Logitech Media Server) plug
 Installation
 ------------
 
-To install the plugin, add the repository URL http://github.com/guillaumezin/DomoticzControl/raw/master/repository/repo.xml to your squeezebox plugin settings page then activate the plugin.
+To install the plugin, add the repository URL http://guillaumezin.github.io/repository/repo.xml to your squeezebox plugin settings page then activate the plugin.
 
 Usage
 -----
