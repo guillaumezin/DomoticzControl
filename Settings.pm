@@ -51,8 +51,14 @@ sub handler {
         $prefsClass->set('snoozes', \%savedSnoozes);
     }
     else {
-        %savedAlarms = %{ $prefsClass->get('alarms') };
-        %savedSnoozes = %{ $prefsClass->get('snoozes') };
+        my $prefsAlarms = $prefsClass->get('alarms');
+	my $prefsSnoozes = $prefsClass->get('snoozes');
+        if (defined $prefsAlarms) {
+            %savedAlarms = %{ $prefsAlarms };
+        }
+        if (defined $prefsSnoozes) {
+            %savedSnoozes = %{ $prefsSnoozes };
+        }
     }
 #    Data::Dump::dump(%savedAlarms);
 #    Data::Dump::dump(%savedSnoozes);

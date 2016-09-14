@@ -503,8 +503,16 @@ sub setAlarmToDomoticz {
     my $alarmId = $request->getParam('_id');
     my $idx;
     my $cmd;
-    my %alarms = %{ $prefs->client($client)->get('alarms') };
-    my %snoozes = %{ $prefs->client($client)->get('snoozes') };
+    my %alarms;
+    my %snoozes;
+    my $prefsAlarms = $prefs->client($client)->get('alarms');
+    my $prefsSnoozes = $prefs->client($client)->get('snoozes');
+    if (defined $prefsAlarms) {
+        %alarms = %{ $prefsAlarms };
+    }
+    if (defined $prefsSnoozes) {
+        %snoozes = %{ $prefsSnoozes };
+    }
    
     initPref($client);
     
