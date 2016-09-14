@@ -65,7 +65,14 @@ sub initPref {
             $prefs->client($client)->get('address') .
             ':' . $prefs->client($client)->get('port') .
             '/json.htm?';
-        $log->debug('Setting URL to '. $domoUrl{$client->id});
+        my $anoDomoUrl = 
+            $prefs->client($client)->get('https') ? 'https://' : 'http://' .
+            ((!($prefs->client($client)->get('user') eq '') && ($prefs->client($client)->get('password') eq '')) ? 'username@' : '') .
+            ((!($prefs->client($client)->get('password') eq '')) ? 'username:********@' : '') .
+            $prefs->client($client)->get('address') .
+            ':' . $prefs->client($client)->get('port') .
+            '/json.htm?';
+        $log->debug('Setting URL to '. $anoDomoUrl);
     }    
 }
 
@@ -262,7 +269,7 @@ sub _filterDomoticz {
     my $planId = $prefs->client($client)->get('filterByPlanId');
     
     unless ($planId == 0) {
-        if (exists($elem->{'PlanIDs'})) {
+        if ($elem->{'PlanIDs'}) {
             unless ( grep( /^$planId/, @{ $elem->{'PlanIDs'} } ) ) {
                 return 0;
             }
@@ -298,9 +305,13 @@ sub _getScenesFromDomoticzCallback {
     my $http = shift;
     my $request = $http->params('request');
     my $client = $request->client();
-    my @devices = @{ $http->params('devices') };
-    my @menu = ();
+    my @devices;
+    my @menu;
     my $level;
+
+    if ($http->params('devices')) {
+        @devices = @{ $http->params('devices') };
+    }
     
     undef %idxLevels;
     
@@ -308,7 +319,11 @@ sub _getScenesFromDomoticzCallback {
     
     my $content = $http->content();
     my $decoded = decode_json($content);
-    my @results = @{ $decoded->{'result'} };
+    my @results;
+
+    if ($decoded->{'result'}) {
+        @results = @{ $decoded->{'result'} };
+    }
     
     unless ($prefs->client($client)->get('hideScenes')) {
         foreach my $f ( @results ) {
@@ -436,14 +451,18 @@ sub _getFromDomoticzCallback {
     my $http = shift;
     my $request = $http->params('request');
     my $client  = $request->client();
-    my @menu = ();
+    my @menu;
     my $trendsurl = $domoUrl{$client->id} . 'type=scenes&used=true';
 
     $log->debug('Got answer from Domoticz after get for devices');
     
     my $content = $http->content();
     my $decoded = decode_json($content);
-    my @results = @{ $decoded->{'result'} };
+    my @results;
+
+    if ($decoded->{'result'}) {
+        @results = @{ $decoded->{'result'} };
+    }
   
     $log->debug('Ask scenes to Domoticz: '. $trendsurl);  
     
@@ -507,10 +526,10 @@ sub setAlarmToDomoticz {
     my %snoozes;
     my $prefsAlarms = $prefs->client($client)->get('alarms');
     my $prefsSnoozes = $prefs->client($client)->get('snoozes');
-    if (defined $prefsAlarms) {
+    if ($prefsAlarms) {
         %alarms = %{ $prefsAlarms };
     }
-    if (defined $prefsSnoozes) {
+    if ($prefsSnoozes) {
         %snoozes = %{ $prefsSnoozes };
     }
    

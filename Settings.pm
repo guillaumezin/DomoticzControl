@@ -53,10 +53,10 @@ sub handler {
     else {
         my $prefsAlarms = $prefsClass->get('alarms');
 	my $prefsSnoozes = $prefsClass->get('snoozes');
-        if (defined $prefsAlarms) {
+        if ($prefsAlarms) {
             %savedAlarms = %{ $prefsAlarms };
         }
-        if (defined $prefsSnoozes) {
+        if ($prefsSnoozes) {
             %savedSnoozes = %{ $prefsSnoozes };
         }
     }
