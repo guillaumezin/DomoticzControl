@@ -9,7 +9,7 @@ use Slim::Utils::Alarm;
 my $pluginprefs = preferences('plugin.DomoticzControl');
 my $serverprefs = preferences('server');
 
-my @prefNames = ('address', 'port', 'https', 'user', 'password', 'onlyFavorites', 'onlyUnproctected', 'dimmerAsOnOff', 'blindsPercentageAsOnOff', 'hideScenes', 'hideOnOff', 'hideDimmers', 'hideBlinds', 'filterByName', 'filterByDescription', 'filterByPlanId');
+my @prefNames = ('address', 'port', 'https', 'user', 'password', 'onlyFavorites', 'onlyUnproctected', 'dimmerAsOnOff', 'blindsPercentageAsOnOff', 'hideScenes', 'hideGroups', 'hideOnOff', 'hideDimmers', 'hideBlinds', 'filterByName', 'filterByDescription', 'filterByPlanId');
 
 sub needsClient {
     return 1;

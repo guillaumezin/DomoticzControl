@@ -43,6 +43,7 @@ my $defaultPrefs = {
     'dimmerAsOnOff'             => 1,
     'blindsPercentageAsOnOff'   => 1,
     'hideScenes'                => 0,
+    'hideGroups'                => 0,
     'hideOnOff'                 => 0,
     'hideDimmers'               => 0,
     'hideBlinds'                => 0,
@@ -96,12 +97,13 @@ sub needsClient {
 sub _setToDomoticz {
     my $client = shift;
     my $idx = shift;
+    my $param = shift;
     my $cmd = shift;
     my $level = shift;
     my $IP='127.0.0.1';
     my $PORT='8080';   
  #   my $trendsurl = "http://$IP:$PORT/json.htm?type=command&param=switchlight&idx=" . $idx . '&switchcmd=' . $cmd . $level;
-    my $trendsurl = $domoUrl{$client->id} . 'type=command&param=switchlight&idx=' . $idx . '&switchcmd=' . $cmd . $level;
+    my $trendsurl = $domoUrl{$client->id} . 'type=command&param=' . $param . '&idx=' . $idx . '&switchcmd=' . $cmd . $level;
     
     $log->debug('Send data to Domoticz: '. $trendsurl);  
     
@@ -124,11 +126,12 @@ sub setToDomoticz {
     my $request = shift;
     my $client  = $request->client();
     my $idx = $request->getParam('idx');
+    my $param = $request->getParam('param');
     my $cmd = $request->getParam('cmd');
     my $level = $request->getParam('level');
-    my @args = ($idx, $cmd, $level);
+    my @args = ($idx, $cmd, $level, $param);
     
-    _setToDomoticz($client, $idx, $cmd, $level);
+    _setToDomoticz($client, $idx, $param, $cmd, $level);
     
     $request->setStatusProcessing();
 }
@@ -139,6 +142,7 @@ sub setToDomoticzTimer{
     my $request = shift;
     my $client  = $request->client();
     my $idx = $request->getParam('idx');
+    my $param = $request->getParam('param');
     my $cmd = $request->getParam('cmd');
     my $level = $request->getParam('level');
     
@@ -148,7 +152,7 @@ sub setToDomoticzTimer{
         Slim::Utils::Timers::killSpecific($idxTimers{$idx});
     }
     
-    $idxTimers{$idx} = Slim::Utils::Timers::setTimer($client, Time::HiRes::time() + 2, \&_setToDomoticz, $idx, $cmd, $level);
+    $idxTimers{$idx} = Slim::Utils::Timers::setTimer($client, Time::HiRes::time() + 2, \&_setToDomoticz, $idx, $param, $cmd, $level);
     
     $request->setStatusDone();
 }
@@ -177,6 +181,7 @@ sub menuDomoticzDimmer {
                 cmd    => ['setToDomoticzTimer'],
                 params => {
                     idx    => $idx,
+                    param  => 'switchlight',
                     cmd    => 'Set%20Level&level=',
                     valtag => 'level',
                 },
@@ -325,10 +330,44 @@ sub _getScenesFromDomoticzCallback {
         @results = @{ $decoded->{'result'} };
     }
     
-    unless ($prefs->client($client)->get('hideScenes')) {
-        foreach my $f ( @results ) {
-            $log->debug($f->{'Name'} . ' (idx=' . $f->{'idx'} . ') is ' . $f->{'Status'} . $f->{'Favorite'} . $f->{'Protected'});
-            if (_filterDomoticz($client, $f)) {
+    # cf. http://wiki.slimdevices.com/index.php/SBS_SqueezePlay_interface for menu architecture
+    foreach my $f ( @results ) {
+        $log->debug($f->{'Name'} . ' (idx=' . $f->{'idx'} . ') is ' . $f->{'Status'} . $f->{'Favorite'} . $f->{'Protected'});
+        if (_filterDomoticz($client, $f)) {
+            if (
+                !$prefs->client($client)->get('hideScenes') 
+                && ($f->{'Type'} eq 'Scene')
+            ) {
+                push @menu, {
+                    text => $f->{'Name'},
+                    nextWindow => 'refresh',
+                    checkbox => 0,
+                    actions  => {
+                        on   => {
+                            player => 0,
+                            cmd    => ['setToDomoticz'],
+                            params => {
+                                idx    => $f->{'idx'},
+                                param  => 'switchscene',
+                                cmd    => 'On',
+                            },
+                        },
+                        off   => {
+                            player => 0,
+                            cmd    => ['setToDomoticz'],
+                            params => {
+                                idx    => $f->{'idx'},
+                                param  => 'switchscene',
+                                cmd    => 'On',
+                            },
+                        },
+                    },		
+                };
+            }
+            if (
+                !$prefs->client($client)->get('hideGroups') 
+                && ($f->{'Type'} eq 'Group')
+            ) {
                 push @menu, {
                     text => $f->{'Name'},
                     checkbox => (($f->{'Status'} eq 'On') || ($f->{'Status'} eq 'Open')) + 0,
@@ -338,6 +377,7 @@ sub _getScenesFromDomoticzCallback {
                             cmd    => ['setToDomoticz'],
                             params => {
                                 idx    => $f->{'idx'},
+                                param  => 'switchscene',
                                 cmd    => 'On',
                             },
                         },
@@ -346,6 +386,7 @@ sub _getScenesFromDomoticzCallback {
                             cmd    => ['setToDomoticz'],
                             params => {
                                 idx    => $f->{'idx'},
+                                param  => 'switchscene',
                                 cmd    => 'Off',
                             },
                         },
@@ -403,6 +444,7 @@ sub _getScenesFromDomoticzCallback {
                             cmd    => ['setToDomoticz'],
                             params => {
                                 idx    => $f->{'idx'},
+                                param  => 'switchlight',
                                 cmd    => 'On',
                             },
                         },
@@ -411,6 +453,7 @@ sub _getScenesFromDomoticzCallback {
                             cmd    => ['setToDomoticz'],
                             params => {
                                 idx    => $f->{'idx'},
+                                param  => 'switchlight',
                                 cmd    => 'Off',
                             },
                         },
@@ -522,6 +565,7 @@ sub setAlarmToDomoticz {
     my $alarmId = $request->getParam('_id');
     my $idx;
     my $cmd;
+    my $param = 'switchlight';
     my %alarms;
     my %snoozes;
     my $prefsAlarms = $prefs->client($client)->get('alarms');
@@ -542,7 +586,7 @@ sub setAlarmToDomoticz {
         $idx = $alarms{$alarmId};
         $cmd = 'On';
         if (length $idx) {
-            _setToDomoticz($client, $idx, $cmd);
+            _setToDomoticz($client, $idx, $param, $cmd);
         }
     }
     elsif ($alarmType eq "end") {
@@ -550,7 +594,7 @@ sub setAlarmToDomoticz {
         $idx = $alarms{$alarmId};
         $cmd = 'Off';
         if (length $idx) {
-            _setToDomoticz($client, $idx, $cmd);
+            _setToDomoticz($client, $idx, $param, $cmd);
         }
     }
     elsif ($alarmType eq "snooze") {
@@ -558,7 +602,7 @@ sub setAlarmToDomoticz {
         $idx = $snoozes{$alarmId};
         $cmd = 'On';
         if (length $idx) {
-            _setToDomoticz($client, $idx, $cmd);
+            _setToDomoticz($client, $idx, $param, $cmd);
         }
     }
     elsif ($alarmType eq "snooze_end") {
@@ -566,7 +610,7 @@ sub setAlarmToDomoticz {
         $idx = $snoozes{$alarmId};
         $cmd = 'Off';
         if (length $idx) {
-            _setToDomoticz($client, $idx, $cmd);
+            _setToDomoticz($client, $idx, $param, $cmd);
         }
     }
 }

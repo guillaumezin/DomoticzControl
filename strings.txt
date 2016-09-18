@@ -62,8 +62,12 @@ PLUGIN_DOMOTICZCONTROL_SETTINGS_ONLYUNPROCTECTED
 	FR	Seulement les dipositifs non protégés
 
 PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDESCENES
-	EN	Hide group and scenes
-	FR	Cacher les groupes et les scènes
+	EN	Hide scenes
+	FR	Cacher les scènes
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEGROUPS
+	EN	Hide group
+	FR	Cacher les groupes
 
 PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEONOFF
 	EN	Hide simple switches

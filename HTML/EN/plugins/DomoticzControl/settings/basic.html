@@ -47,6 +47,9 @@
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDESCENES" desc="" %]
                     <input type="checkbox" name="pref_hideScenes" id="hideScenes" [% IF prefs.pref_hideScenes %]checked[% END %]/>
                 [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEGROUPS" desc="" %]
+                    <input type="checkbox" name="pref_hideGroups" id="hideGroups" [% IF prefs.pref_hideGroups %]checked[% END %]/>
+                [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEONOFF" desc="" %]
                     <input type="checkbox" name="pref_hideOnOff" id="hideOnOff" [% IF prefs.pref_hideOnOff %]checked[% END %]/>
                 [% END %]
