@@ -15,6 +15,6 @@ Usage
 
 1. There you can configure URL access for Domoticz and filter for each player which control you want to get on the player screen.
 
-1. You can also associate alarms and snoozes with Domoticz devices (On/Off commands only). This can be usefull to activate Domoticz scripts through a virtual switch for instance.
+1. You can also associate alarms and snoozes with Domoticz devices (On/Off commands only). This can be useful to activate Domoticz scripts through a virtual switch for instance.
 
 1. Domoticz control should appear in the Extra menu of your Jive based players.
