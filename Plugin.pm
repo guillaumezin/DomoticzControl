@@ -50,6 +50,7 @@ my $defaultPrefs = {
     'filterByName'              => "",
     'filterByDescription'       => "",
     'filterByPlanId'            => 0,
+    'deviceOnOff'               => 0,
 };
 
 sub initPref {
@@ -558,9 +559,29 @@ sub getFromDomoticz {
     $request->setStatusProcessing();
 }
 
+sub powerCallback {
+    my $request = shift;
+    my $client = $request->client() || return;
+    my $cmd;
+    my $param = 'switchlight';
+    my $idx = $prefs->client($client)->get('deviceOnOff');
+
+    initPref($client);
+    
+    if ($idx > 0) {
+        if ($client->power()) {
+            $cmd = 'On';
+        }
+        else {
+            $cmd = 'Off';
+        }
+        _setToDomoticz($client, $idx, $param, $cmd);
+    }
+ }
+
 sub setAlarmToDomoticz {
     my $request = shift;
-    my $client  = $request->client();
+    my $client  = $request->client() || return;
     my $alarmType = $request->getRequest(1);
     my $alarmId = $request->getParam('_id');
     my $idx;
@@ -634,7 +655,7 @@ sub initPlugin {
         stringToken   => getDisplayName(),
         id     => 'pluginDomoticzControlmenu',
         'icon-id' => Plugins::DomoticzControl::Plugin->_pluginDataFor('icon'),
-        weight => 15,
+        weight => 50,
 	actions => {
             go => {
                 player => 0,
@@ -645,7 +666,14 @@ sub initPlugin {
 
 #    Slim::Control::Jive::registerAppMenu(\@menu);
 #    $class->addNonSNApp();
-    Slim::Control::Jive::registerPluginMenu(\@menu, 'extras');
+#    Slim::Control::Jive::registerPluginMenu(\@menu, 'extras');
+    Slim::Control::Jive::registerPluginMenu(\@menu, 'home');
+    
+    # Subscribe to on/off
+    Slim::Control::Request::subscribe(
+            \&powerCallback,
+            [['power']]
+    );
     
     # Subscribe to alarms
     Slim::Control::Request::subscribe(
@@ -657,6 +685,7 @@ sub initPlugin {
 sub shutdownPlugin {
     my $class = shift;
     Slim::Control::Request::unsubscribe(\&setAlarmToDomoticz);
+    Slim::Control::Request::unsubscribe(\&powerCallback);
     Slim::Control::Jive::deleteMenuItem('pluginDomoticzControlmenu');
 }
 

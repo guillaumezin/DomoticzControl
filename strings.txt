@@ -81,6 +81,14 @@ PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEBLINDS
 	EN	Hide blinds
 	FR	Cacher les volets
 
+PLUGIN_DOMOTICZCONTROL_SETTINGS_ONOFFDEVICE
+	EN	Idx to synchronise with On/Off
+	FR	Idx à synchroniser aux On/Off
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_ONOFFDEVICEDOC
+	EN	Triggers the device with this Idx number as the same time as the radio is turned On or Off<br/>Sends On/Off commands only, use a virtual switch and a script on Domoticz for more complex needs<br />0 to disable
+	FR	Déclenche le dispositif avec ce numéro Idx en même temps que le poste radio est allumé ou éteint<br/>Envoie seulement des commandes On/Off, utilisez un bouton virtuel et un script Domoticz pour les besoins plus complexes<br />0 pour désactiver
+
 PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERBYNAME
 	EN	Filter by name
 	FR	Filter par nom

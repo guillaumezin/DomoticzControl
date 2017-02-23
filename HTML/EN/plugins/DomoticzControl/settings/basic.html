@@ -80,6 +80,11 @@
 
 <br/>
 
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_ONOFFDEVICE" desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_ONOFFDEVICEDOC" %]
+                    <input type="number" min="0" name="pref_deviceOnOff" id="deviceOnOff" value="[% prefs.pref_deviceOnOff %]"/>
+                [% END %]
+
+<br/>
                 <div class="alarmSection">
                 [% FOREACH alarm = alarms %]
                         [% PROCESS alarmSettingDomoticzControl %]
