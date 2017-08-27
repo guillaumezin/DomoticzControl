@@ -78,6 +78,16 @@ sub initPref {
     }    
 }
 
+sub resetPref {
+    my $client = shift;
+    
+    $log->debug('Reset pref');
+    
+    if (exists $domoUrl{$client->id}) {
+        delete $domoUrl{$client->id};
+    }
+}
+
 sub _setToDomoticzCallback {
     $log->debug('Got answer from Domoticz after set');
     

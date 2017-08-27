@@ -49,6 +49,7 @@ sub handler {
 	}
         $prefsClass->set('alarms', \%savedAlarms);
         $prefsClass->set('snoozes', \%savedSnoozes);
+        Plugins::DomoticzControl::Plugin::resetPref($client);        
     }
     else {
         my $prefsAlarms = $prefsClass->get('alarms');
