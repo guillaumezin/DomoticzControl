@@ -18,3 +18,8 @@ Usage
 1. You can also associate alarms and snoozes with Domoticz devices (On/Off commands only). This can be useful to activate Domoticz scripts through a virtual switch for instance.
 
 1. Domoticz control should appear in the Extra menu of your Jive based players.
+
+License
+-------
+
+This project is licensed under the MIT license - see the [LICENSE](LICENSE) file for details
