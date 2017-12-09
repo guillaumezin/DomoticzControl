@@ -486,7 +486,7 @@ sub _getScenesFromDomoticzCallback {
                 $log->debug('Setpoint ' . $f->{'SetPoint'});
                 
                 push @menu, {
-                    text     => $f->{'Name'} . ': '. $f->{'SetPoint'} . chr(176) . 'C',
+                    text     => $f->{'Name'} . ': '. $f->{'SetPoint'},
                     nextWindow => 'parent',
                     input    => {
                         initialText => $f->{'SetPoint'},
@@ -494,7 +494,7 @@ sub _getScenesFromDomoticzCallback {
                         allowedChars => '.0123456789',
                     },
                     window   => {
-                        text => $f->{'Name'} . ' (' . chr(176) . 'C)',
+                        text => $f->{'Name'},
                     },
                     actions  => {
                         go => {
