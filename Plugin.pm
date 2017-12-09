@@ -16,6 +16,11 @@ my %idxTimers  = ();
 my %idxLevels  = ();
 my %domoUrl = ();
 
+use constant SWITCH_TYPE_SELECTOR    => 4;
+use constant SWITCH_TYPE_TEMPERATURE => 3;
+use constant SWITCH_TYPE_DIMMER      => 3;
+use constant SWITCH_TYPE_SWITCH      => 1;
+use constant SWITCH_TYPE_NONE        => 0;
 
 sub getDisplayName { 
     return 'PLUGIN_DOMOTICZCONTROL'; 
@@ -114,7 +119,7 @@ sub _setToDomoticz {
     my $IP='127.0.0.1';
     my $PORT='8080';   
  #   my $trendsurl = "http://$IP:$PORT/json.htm?type=command&param=switchlight&idx=" . $idx . '&switchcmd=' . $cmd . $level;
-    my $trendsurl = $domoUrl{$client->id} . 'type=command&param=' . $param . '&idx=' . $idx . '&switchcmd=' . $cmd . $level;
+    my $trendsurl = $domoUrl{$client->id} . 'type=command&param=' . $param . '&idx=' . $idx . '&' . $cmd . '=' . $level;
     
     $log->debug('Send data to Domoticz: '. $trendsurl);  
     
@@ -213,25 +218,33 @@ sub menuDomoticzDimmer {
 sub _filterDomoticzOnOff {
     my $client = shift;
     my $elem = shift;
+
+    if ($elem->{'SwitchType'} == 'Selector') {
+        return SWITCH_TYPE_SELECTOR;
+    }
+    
+    if ($elem->{'SubType'} == 'SetPoint') {
+        return SWITCH_TYPE_TEMPERATURE;
+    }
     
     if ($elem->{'SwitchTypeVal'} == 0) {
         if ($prefs->client($client)->get('hideOnOff')) {
-            return 0;
+            return SWITCH_TYPE_NONE;
         }
         else {
-            return 1;
+            return SWITCH_TYPE_SWITCH;
         }
     }
     
     if ($elem->{'SwitchTypeVal'} == 7) {
         if ($prefs->client($client)->get('hideDimmers')) {
-            return 0;
+            return SWITCH_TYPE_NONE;
         }
         elsif ($prefs->client($client)->get('dimmerAsOnOff')) {
-            return 1;
+            return SWITCH_TYPE_SWITCH;
         }
         else {
-            return 2;
+            return SWITCH_TYPE_DIMMER;
         }
     }
     
@@ -240,10 +253,10 @@ sub _filterDomoticzOnOff {
         || ($elem->{'SwitchTypeVal'} == 6)
     ) {
         if ($prefs->client($client)->get('hideBlinds')) {
-            return 0;
+            return SWITCH_TYPE_NONE;
         }
         else {
-            return 1;
+            return SWITCH_TYPE_SWITCH;
         }
     }
 
@@ -252,17 +265,17 @@ sub _filterDomoticzOnOff {
         || ($elem->{'SwitchTypeVal'} == 16)
     ) {
         if ($prefs->client($client)->get('hideBlinds')) {
-            return 0;
+            return SWITCH_TYPE_NONE;
         }
         elsif ($prefs->client($client)->get('blindsPercentageAsOnOff')) {
-            return 1;
+            return SWITCH_TYPE_SWITCH;
         }
         else {
-            return 2;
+            return SWITCH_TYPE_DIMMER;
         }
     }
     
-    return 0;
+    return SWITCH_TYPE_NONE;
 }
 
 sub _strMatch {
@@ -360,7 +373,8 @@ sub _getScenesFromDomoticzCallback {
                             params => {
                                 idx    => $f->{'idx'},
                                 param  => 'switchscene',
-                                cmd    => 'On',
+                                cmd    => 'switchcmd',
+                                level  => 'On',
                             },
                         },
                         off   => {
@@ -369,7 +383,8 @@ sub _getScenesFromDomoticzCallback {
                             params => {
                                 idx    => $f->{'idx'},
                                 param  => 'switchscene',
-                                cmd    => 'On',
+                                cmd    => 'switchcmd',
+                                level  => 'On',
                             },
                         },
                     },		
@@ -381,6 +396,7 @@ sub _getScenesFromDomoticzCallback {
             ) {
                 push @menu, {
                     text => $f->{'Name'},
+                    nextWindow => 'refresh',
                     checkbox => (($f->{'Status'} eq 'On') || ($f->{'Status'} eq 'Open')) + 0,
                     actions  => {
                         on   => {
@@ -389,7 +405,8 @@ sub _getScenesFromDomoticzCallback {
                             params => {
                                 idx    => $f->{'idx'},
                                 param  => 'switchscene',
-                                cmd    => 'On',
+                                cmd    => 'switchcmd',
+                                level  => 'On',
                             },
                         },
                         off   => {
@@ -398,7 +415,8 @@ sub _getScenesFromDomoticzCallback {
                             params => {
                                 idx    => $f->{'idx'},
                                 param  => 'switchscene',
-                                cmd    => 'Off',
+                                cmd    => 'switchcmd',
+                                level  => 'Off',
                             },
                         },
                     },		
@@ -409,8 +427,80 @@ sub _getScenesFromDomoticzCallback {
     
     foreach my $f ( @devices ) {
         if (_filterDomoticz($client, $f)) {
+            # Selector
+            if (_filterDomoticzOnOff($client, $f) == SWITCH_TYPE_SELECTOR) {
+                $log->debug($f->{'Name'} . ' (idx=' . $f->{'idx'} . ') is ' . $f->{'Status'});
+                $log->debug('Selector LevelInt=' . $f->{'LevelInt'});
+                
+                my @choiceStrings = split(/|/, $f->{'LevelNames'});
+		my @choiceActions;
+		my $currentSetting = 0;
+		my $level = 0;
+		
+		for my $iii (0..$#choiceStrings) {
+                    if ($f->{'LevelOffHidden'} && ($iii==0)) {
+                        next;
+                    }
+                    $level = $iii * 10;
+                    if ($f->{'LevelInt'} == $level) {
+                        $currentSetting = $iii
+                    }
+                    push @choiceActions, 
+                    {
+                        player => 0,
+                        cmd    => ['setToDomoticz'],
+                        params => {
+                            idx    => $f->{'idx'},
+                            param  => 'switchlight',
+                            cmd    => 'Set%20Level&level=',
+                            level  => $level,
+                        },
+                    },
+		}
+		
+                push @menu, {
+                    text     => $f->{'Name'},
+                    selectedIndex => $currentSetting,
+                    choiceStrings => [ @choiceStrings ],
+                    actions  => {
+                        do => {
+                            choices => [ @choiceActions ],
+                    },
+                };
+            }
+            # Setpoint
+            if (_filterDomoticzOnOff($client, $f) == SWITCH_TYPE_TEMPERATURE) {
+                $log->debug($f->{'Name'} . ' (idx=' . $f->{'idx'} . ') is ' . $f->{'Status'});
+                $log->debug('Setpoint ' . $f->{'SetPoint'});
+                
+                push @menu, {
+                    text     => $f->{'Name'} . ': '. $f->{'SetPoint'} . '°C',
+                    nextWindow => 'refresh',
+                    input    => {
+                        len => 1,
+                        allowedChars => '.0123456789'
+                        softbutton1 => $request->string('INSERT'),
+                        softbutton2 => $request->string('DELETE'),
+                    }
+                    window   => {
+                        title => $f->{'Name'} . ': '. $f->{'SetPoint'} . '°C',
+                    }
+                    actions  => {
+                        go => {
+                            player => 0,
+                            cmd    => ['setToDomoticz'],
+                            params => {
+                                idx    => $f->{'idx'},
+                                param  => 'udevice',
+                                cmd    => 'nvalue=0&svalue',
+                                level  => __INPUT__,
+                            },
+                        },
+                    },
+                };
+            }
             # Percentage (dimmer, blind, etc.)
-            if (_filterDomoticzOnOff($client, $f) == 2) {
+            elsif (_filterDomoticzOnOff($client, $f) == SWITCH_TYPE_DIMMER) {
                 $log->debug($f->{'Name'} . ' (idx=' . $f->{'idx'} . ') is ' . $f->{'Status'});
                 $log->debug('Dimmer ' . $f->{'MaxDimLevel'} . ' (LevelInt=' . $f->{'LevelInt'} . ')');
                 
@@ -445,7 +535,7 @@ sub _getScenesFromDomoticzCallback {
                 };
             }
             # Normal On/Off
-            elsif (_filterDomoticzOnOff($client, $f) == 1) {
+            elsif (_filterDomoticzOnOff($client, $f) == SWITCH_TYPE_SWITCH) {
                 push @menu, {
                     text     => $f->{'Name'},
                     checkbox => (!($f->{'Status'} eq 'Off') && !($f->{'Status'} eq 'Closed')) + 0,
@@ -456,7 +546,8 @@ sub _getScenesFromDomoticzCallback {
                             params => {
                                 idx    => $f->{'idx'},
                                 param  => 'switchlight',
-                                cmd    => 'On',
+                                cmd    => 'switchcmd',
+                                level  => 'On',
                             },
                         },
                         off  => {
@@ -465,7 +556,8 @@ sub _getScenesFromDomoticzCallback {
                             params => {
                                 idx    => $f->{'idx'},
                                 param  => 'switchlight',
-                                cmd    => 'Off',
+                                cmd    => 'switchcmd',
+                                level  => 'Off',
                             },
                         },
                     },		
