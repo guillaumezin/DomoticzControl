@@ -9,8 +9,6 @@ use Slim::Utils::Alarm;
 my $pluginprefs = preferences('plugin.DomoticzControl');
 my $serverprefs = preferences('server');
 
-my @prefNames = ('address', 'port', 'https', 'user', 'password', 'onlyFavorites', 'onlyUnproctected', 'dimmerAsOnOff', 'blindsPercentageAsOnOff', 'hideScenes', 'hideGroups', 'hideOnOff', 'hideDimmers', 'hideBlinds', 'filterByName', 'filterByDescription', 'filterByPlanId', 'deviceOnOff');
-
 sub needsClient {
     return 1;
 }
@@ -26,7 +24,7 @@ sub page {
 sub prefs {
     my ($class, $client) = @_;
 
-    return ($pluginprefs->client($client), @prefNames);
+    return ($pluginprefs->client($client), Plugins::DomoticzControl::Plugin::getPrefNames());
 }
 
 sub handler {
@@ -42,6 +40,12 @@ sub handler {
 #    $Template::Stash::PRIVATE = undef;
 
     if ($paramRef->{'saveSettings'}) {
+        # set undefined to 0, we don't wand undefined to be saved because it will be overwritten by default values
+	foreach my $pref (@prefs) {
+            if (! defined $paramRef->{'pref_' . $pref}) {
+                $paramRef->{'pref_' . $pref} = 0;
+            }
+        }
         foreach my $alarm (@alarmsObj) {
             my $id = $alarm->id();
             $savedAlarms{$id} = $paramRef->{'alarmId' . $id};
@@ -49,7 +53,8 @@ sub handler {
 	}
         $prefsClass->set('alarms', \%savedAlarms);
         $prefsClass->set('snoozes', \%savedSnoozes);
-        Plugins::DomoticzControl::Plugin::resetPref($client);        
+        
+        Plugins::DomoticzControl::Plugin::resetPref($client);
     }
     else {
         my $prefsAlarms = $prefsClass->get('alarms');

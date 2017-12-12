@@ -24,7 +24,7 @@
                     <input type="text" name="pref_address" id="address" value="[% prefs.pref_address %]"/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HTTPS" desc="" %]
-                    <input type="checkbox" name="pref_https" id="https" [% IF prefs.pref_https %]checked[% END %]/>
+                    <input type="checkbox" name="pref_https" id="https" value="1" [% IF prefs.pref_https %]checked="checked"[% END %]/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_USER" desc="" %]
                     <input type="text" name="pref_user" id="user" value="[% prefs.pref_user %]"/>
@@ -39,25 +39,25 @@
 <br/>
 
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_ONLYFAVORITES" desc="" %]
-                    <input type="checkbox" name="pref_onlyFavorites" id="onlyFavorites" [% IF prefs.pref_onlyFavorites %]checked[% END %]/>
+                    <input type="checkbox" name="pref_onlyFavorites" id="onlyFavorites" value="1" [% IF prefs.pref_onlyFavorites %]checked="checked"[% END %]/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_ONLYUNPROCTECTED" desc="" %]
-                    <input type="checkbox" name="pref_onlyUnproctected" id="onlyUnproctected" [% IF prefs.pref_onlyUnproctected %]checked[% END %]/>
+                    <input type="checkbox" name="pref_onlyUnproctected" id="onlyUnproctected" value="1" [% IF prefs.pref_onlyUnproctected %]checked="checked"[% END %]/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDESCENES" desc="" %]
-                    <input type="checkbox" name="pref_hideScenes" id="hideScenes" [% IF prefs.pref_hideScenes %]checked[% END %]/>
+                    <input type="checkbox" name="pref_hideScenes" id="hideScenes" value="1" [% IF prefs.pref_hideScenes %]checked="checked"[% END %]/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEGROUPS" desc="" %]
-                    <input type="checkbox" name="pref_hideGroups" id="hideGroups" [% IF prefs.pref_hideGroups %]checked[% END %]/>
+                    <input type="checkbox" name="pref_hideGroups" id="hideGroups" value="1" [% IF prefs.pref_hideGroups %]checked="checked"[% END %]/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEONOFF" desc="" %]
-                    <input type="checkbox" name="pref_hideOnOff" id="hideOnOff" [% IF prefs.pref_hideOnOff %]checked[% END %]/>
+                    <input type="checkbox" name="pref_hideOnOff" id="hideOnOff" value="1" [% IF prefs.pref_hideOnOff %]checked="checked"[% END %]/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEDIMMERS" desc="" %]
-                    <input type="checkbox" name="pref_hideDimmers" id="hideDimmers" [% IF prefs.pref_hideDimmers %]checked[% END %]/>
+                    <input type="checkbox" name="pref_hideDimmers" id="hideDimmers" value="1" [% IF prefs.pref_hideDimmers %]checked="checked"[% END %]/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HIDEBLINDS" desc="" %]
-                    <input type="checkbox" name="pref_hideBlinds" id="hideBlinds" [% IF prefs.pref_hideBlinds %]checked[% END %]/>
+                    <input type="checkbox" name="pref_hideBlinds" id="hideBlinds" value="1" [% IF prefs.pref_hideBlinds %]checked="checked"[% END %]/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERBYNAME" desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTEREMPYDISABLE" %]
                     <input type="text" name="pref_filterByName" id="filterByName" value="[% prefs.pref_filterByName %]"/>
@@ -72,10 +72,10 @@
 <br/>
 
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_DIMMERASONOFF" desc="" %]
-                    <input type="checkbox" name="pref_dimmerAsOnOff" id="dimmerAsOnOff" [% IF prefs.pref_dimmerAsOnOff %]checked[% END %]/>
+                    <input type="checkbox" name="pref_dimmerAsOnOff" id="dimmerAsOnOff" value="1" [% IF prefs.pref_dimmerAsOnOff %]checked="checked"[% END %]/>
                 [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_BLINDSPERCENTAGEASONOFF" desc="" %]
-                    <input type="checkbox" name="pref_blindsPercentageAsOnOff" id="blindsPercentageAsOnOff" [% IF prefs.pref_blindsPercentageAsOnOff %]checked[% END %]/>
+                    <input type="checkbox" name="pref_blindsPercentageAsOnOff" id="blindsPercentageAsOnOff" value="1" [% IF prefs.pref_blindsPercentageAsOnOff %]checked="checked"[% END %]/>
                 [% END %]
 
 <br/>

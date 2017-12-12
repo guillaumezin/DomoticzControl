@@ -52,11 +52,18 @@ my $defaultPrefs = {
     'hideOnOff'                 => 0,
     'hideDimmers'               => 0,
     'hideBlinds'                => 0,
-    'filterByName'              => "",
-    'filterByDescription'       => "",
+    'filterByName'              => '',
+    'filterByDescription'       => '',
     'filterByPlanId'            => 0,
     'deviceOnOff'               => 0,
 };
+
+use Scalar::Util qw(reftype);
+
+sub getPrefNames {
+    my @prefNames = keys %$defaultPrefs;
+    return @prefNames;
+}
 
 sub initPref {
     my $client = shift;
@@ -80,6 +87,18 @@ sub initPref {
             ':' . $prefs->client($client)->get('port') .
             '/json.htm?';
         $log->debug('Setting URL to '. $anoDomoUrl);
+    }    
+}
+
+sub clientEvent {
+    my $request = shift;
+    my $client  = $request->client;
+
+    $log->debug('Client event');
+    
+    if (defined $client) {
+        $log->debug('Client event with client defined');
+        initPref($client);
     }    
 }
 
@@ -151,8 +170,6 @@ sub setToDomoticz {
     
     $request->setStatusProcessing();
 }
-
-
 
 sub setToDomoticzTimer{
     my $request = shift;
@@ -350,8 +367,8 @@ sub _getScenesFromDomoticzCallback {
         @devices = @{ $http->params('devices') };
     }
     
-    undef %idxLevels;
-    
+    %idxLevels = ();
+
     $log->debug('Got answer from Domoticz after get scenes');
     
     my $content = $http->content();
@@ -757,6 +774,14 @@ sub initPlugin {
         Plugins::DomoticzControl::Settings->new();
     }
 
+    # TODO: init client default pref one way or another before setting page (Slim::Control::Request::subscribe ?)
+    # TODO: Slim::Control::Request::subscribe(\&prefEvent, [['prefset']]);
+    # Cf. Slim/Control/Request.pm
+    # # Subscribe to player connect/disconnect messages
+# 	Slim::Control::Request::subscribe(
+# 		\&clientEvent,
+# 		[['client'],['new','reconnect','disconnect']]
+# );
     $class->SUPER::initPlugin();
 
     Slim::Control::Request::addDispatch(['menuDomoticzDimmer'],[1, 0, 1, \&menuDomoticzDimmer]);	
@@ -793,10 +818,18 @@ sub initPlugin {
             \&setAlarmToDomoticz,
             [['alarm'],['sound', 'end', 'snooze', 'snooze_end']]
     );
+
+    # TODO: charger les préférences seulement si vraiment non définies, ou changer la façon dont Settings écrit les préférences pour mettre à 0 plutôt qu'à undefined
+    # Init pref when client connects
+    Slim::Control::Request::subscribe(
+        \&clientEvent,
+        [['client'],['new','reconnect','disconnect']]
+    );
 }
 
 sub shutdownPlugin {
     my $class = shift;
+    Slim::Control::Request::unsubscribe(\&clientEvent);
     Slim::Control::Request::unsubscribe(\&setAlarmToDomoticz);
     Slim::Control::Request::unsubscribe(\&powerCallback);
     Slim::Control::Jive::deleteMenuItem('pluginDomoticzControlmenu');
