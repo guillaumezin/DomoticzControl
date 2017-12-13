@@ -58,8 +58,6 @@ my $defaultPrefs = {
     'deviceOnOff'               => 0,
 };
 
-use Scalar::Util qw(reftype);
-
 sub getPrefNames {
     my @prefNames = keys %$defaultPrefs;
     return @prefNames;
@@ -774,14 +772,6 @@ sub initPlugin {
         Plugins::DomoticzControl::Settings->new();
     }
 
-    # TODO: init client default pref one way or another before setting page (Slim::Control::Request::subscribe ?)
-    # TODO: Slim::Control::Request::subscribe(\&prefEvent, [['prefset']]);
-    # Cf. Slim/Control/Request.pm
-    # # Subscribe to player connect/disconnect messages
-# 	Slim::Control::Request::subscribe(
-# 		\&clientEvent,
-# 		[['client'],['new','reconnect','disconnect']]
-# );
     $class->SUPER::initPlugin();
 
     Slim::Control::Request::addDispatch(['menuDomoticzDimmer'],[1, 0, 1, \&menuDomoticzDimmer]);	
@@ -819,7 +809,6 @@ sub initPlugin {
             [['alarm'],['sound', 'end', 'snooze', 'snooze_end']]
     );
 
-    # TODO: charger les préférences seulement si vraiment non définies, ou changer la façon dont Settings écrit les préférences pour mettre à 0 plutôt qu'à undefined
     # Init pref when client connects
     Slim::Control::Request::subscribe(
         \&clientEvent,
