@@ -16,6 +16,7 @@ my %idxTimers  = ();
 my %idxLevels  = ();
 my %domoUrl = ();
 
+use constant SWITCH_TYPE_PUSH        => 5;
 use constant SWITCH_TYPE_SELECTOR    => 4;
 use constant SWITCH_TYPE_TEMPERATURE => 3;
 use constant SWITCH_TYPE_DIMMER      => 2;
@@ -57,6 +58,8 @@ my $defaultPrefs = {
     'filterByPlanId'            => 0,
     'deviceOnOff'               => 0,
 };
+
+use Scalar::Util qw(reftype);
 
 sub getPrefNames {
     my @prefNames = keys %$defaultPrefs;
@@ -234,19 +237,15 @@ sub _filterDomoticzSupportedDevice {
     my $client = shift;
     my $elem = shift;
 
-    if (!exists($elem->{'SubType'})) {
-        return SWITCH_TYPE_NONE;
-    }
-    
-    if ($elem->{'SubType'} eq 'Selector Switch') {
+    if (defined $elem->{'LevelNames'}) {
         return SWITCH_TYPE_SELECTOR;
     }
     
-    if ($elem->{'SubType'} eq 'SetPoint') {
+    if (defined $elem->{'SetPoint'}) {
         return SWITCH_TYPE_TEMPERATURE;
     }
     
-    if ($elem->{'SubType'} ne 'Switch') {
+    if (!defined $elem->{'SwitchTypeVal'}) {
         return SWITCH_TYPE_NONE;
     }
     
@@ -256,6 +255,18 @@ sub _filterDomoticzSupportedDevice {
         }
         else {
             return SWITCH_TYPE_SWITCH;
+        }
+    }
+    
+    if (
+        ($elem->{'SwitchTypeVal'} == 9)
+        || ($elem->{'SwitchTypeVal'} == 10)
+    ) {
+        if ($prefs->client($client)->get('hideOnOff')) {
+            return SWITCH_TYPE_NONE;
+        }
+        else {
+            return SWITCH_TYPE_PUSH;
         }
     }
     
@@ -584,6 +595,33 @@ sub _getScenesFromDomoticzCallback {
                                 param  => 'switchlight',
                                 cmd    => 'switchcmd',
                                 level  => 'Off',
+                            },
+                        },
+                    },		
+                };
+            }
+            # push On/Off
+            elsif (_filterDomoticzSupportedDevice($client, $f) == SWITCH_TYPE_PUSH) {
+                my $doLevel;
+                if ($f->{'SwitchType'} =~ m/Off/) {
+                    $doLevel = 'Off';
+                }
+                else {
+                    $doLevel = 'On';
+                }
+                push @menu, {
+                    text     => $f->{'Name'},
+                    radio    => 0,
+                    nextWindow => 'refresh',
+                    actions  => {
+                        do   => {
+                            player => 0,
+                            cmd    => ['setToDomoticz'],
+                            params => {
+                                idx    => $f->{'idx'},
+                                param  => 'switchlight',
+                                cmd    => 'switchcmd',
+                                level  => $doLevel,
                             },
                         },
                     },		
