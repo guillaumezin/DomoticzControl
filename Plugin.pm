@@ -728,7 +728,8 @@ sub getFromDomoticz {
 sub powerCallback {
     my $request = shift;
     my $client = $request->client() || return;
-    my $cmd;
+    my $cmd = 'switchcmd';
+    my $level;
     my $param = 'switchlight';
     my $idx = $prefs->client($client)->get('deviceOnOff');
 
@@ -736,12 +737,12 @@ sub powerCallback {
     
     if ($idx > 0) {
         if ($client->power()) {
-            $cmd = 'On';
+            $level = 'On';
         }
         else {
-            $cmd = 'Off';
+            $level = 'Off';
         }
-        _setToDomoticz($client, $idx, $param, $cmd);
+        _setToDomoticz($client, $idx, $param, $cmd, $level);
     }
  }
 
@@ -753,6 +754,7 @@ sub setAlarmToDomoticz {
     my $idx;
     my $cmd;
     my $param = 'switchlight';
+    my $cmd = 'switchcmd';
     my %alarms;
     my %snoozes;
     my $prefsAlarms = $prefs->client($client)->get('alarms');
@@ -771,33 +773,33 @@ sub setAlarmToDomoticz {
     if ($alarmType eq "sound") {
         $log->debug('Alarm on to Domoticz: '. $alarmId);
         $idx = $alarms{$alarmId};
-        $cmd = 'On';
+        $level = 'On';
         if (length $idx) {
-            _setToDomoticz($client, $idx, $param, $cmd);
+            _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
     }
     elsif ($alarmType eq "end") {
         $log->debug('Alarm off to Domoticz: '. $alarmId);
         $idx = $alarms{$alarmId};
-        $cmd = 'Off';
+        $level = 'Off';
         if (length $idx) {
-            _setToDomoticz($client, $idx, $param, $cmd);
+            _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
     }
     elsif ($alarmType eq "snooze") {
         $log->debug('Snooze on to Domoticz: '. $alarmId);
         $idx = $snoozes{$alarmId};
-        $cmd = 'On';
+        $level = 'On';
         if (length $idx) {
-            _setToDomoticz($client, $idx, $param, $cmd);
+            _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
     }
     elsif ($alarmType eq "snooze_end") {
         $log->debug('Snooze off to Domoticz: '. $alarmId);
         $idx = $snoozes{$alarmId};
-        $cmd = 'Off';
+        $level = 'Off';
         if (length $idx) {
-            _setToDomoticz($client, $idx, $param, $cmd);
+            _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
     }
 }
