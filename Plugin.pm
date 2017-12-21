@@ -59,8 +59,6 @@ my $defaultPrefs = {
     'deviceOnOff'               => 0,
 };
 
-use Scalar::Util qw(reftype);
-
 sub getPrefNames {
     my @prefNames = keys %$defaultPrefs;
     return @prefNames;
@@ -728,9 +726,9 @@ sub getFromDomoticz {
 sub powerCallback {
     my $request = shift;
     my $client = $request->client() || return;
+    my $param = 'switchlight';
     my $cmd = 'switchcmd';
     my $level;
-    my $param = 'switchlight';
     my $idx = $prefs->client($client)->get('deviceOnOff');
 
     initPref($client);
