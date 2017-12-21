@@ -752,7 +752,7 @@ sub setAlarmToDomoticz {
     my $alarmType = $request->getRequest(1);
     my $alarmId = $request->getParam('_id');
     my $idx;
-    my $cmd;
+    my $level;
     my $param = 'switchlight';
     my $cmd = 'switchcmd';
     my %alarms;
