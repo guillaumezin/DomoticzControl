@@ -396,20 +396,10 @@ sub _getScenesFromDomoticzCallback {
             ) {
                 push @menu, {
                     text => $f->{'Name'},
+                    radio => 0,
                     nextWindow => 'refresh',
-                    checkbox => 0,
                     actions  => {
-                        on   => {
-                            player => 0,
-                            cmd    => ['setToDomoticz'],
-                            params => {
-                                idx    => $f->{'idx'},
-                                param  => 'switchscene',
-                                cmd    => 'switchcmd',
-                                level  => 'On',
-                            },
-                        },
-                        off   => {
+                        do   => {
                             player => 0,
                             cmd    => ['setToDomoticz'],
                             params => {
@@ -428,8 +418,8 @@ sub _getScenesFromDomoticzCallback {
             ) {
                 push @menu, {
                     text => $f->{'Name'},
-                    nextWindow => 'refresh',
-                    checkbox => (($f->{'Status'} eq 'On') || ($f->{'Status'} eq 'Open')) + 0,
+                    #nextWindow => 'refresh',
+                    checkbox => (($f->{'Status'} ne 'On') && ($f->{'Status'} ne 'Open')) + 0,
                     actions  => {
                         on   => {
                             player => 0,
