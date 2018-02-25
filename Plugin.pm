@@ -419,7 +419,7 @@ sub _getScenesFromDomoticzCallback {
                 push @menu, {
                     text => $f->{'Name'},
                     #nextWindow => 'refresh',
-                    checkbox => (($f->{'Status'} ne 'On') && ($f->{'Status'} ne 'Open')) + 0,
+                    checkbox => (($f->{'Status'} eq 'On') || ($f->{'Status'} eq 'Open')) + 0,
                     actions  => {
                         on   => {
                             player => 0,
@@ -563,7 +563,7 @@ sub _getScenesFromDomoticzCallback {
             elsif (_filterDomoticzSupportedDevice($client, $f) == SWITCH_TYPE_SWITCH) {
                 push @menu, {
                     text     => $f->{'Name'},
-                    checkbox => (!($f->{'Status'} eq 'Off') && !($f->{'Status'} eq 'Closed')) + 0,
+                    checkbox => (($f->{'Status'} eq 'On') || ($f->{'Status'} eq 'Open')) + 0,
                     actions  => {
                         on   => {
                             player => 0,
