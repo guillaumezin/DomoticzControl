@@ -1,4 +1,4 @@
-package Plugins::DomoticzControl::Settings;
+package Plugins::DomoticzControl::PlayerSettings;
 
 use strict;
 use base qw(Slim::Web::Settings);
@@ -14,11 +14,11 @@ sub needsClient {
 }
 
 sub name {
-    return Slim::Web::HTTP::CSRF->protectName('PLUGIN_DOMOTICZCONTROL_BASIC_SETTINGS');
+    return Slim::Web::HTTP::CSRF->protectName('PLUGIN_DOMOTICZCONTROL_PLAYER_SETTINGS');
 }
 
 sub page {
-    return Slim::Web::HTTP::CSRF->protectURI('plugins/DomoticzControl/settings/basic.html');
+    return Slim::Web::HTTP::CSRF->protectURI('plugins/DomoticzControl/settings/player.html');
 }
 
 sub prefs {

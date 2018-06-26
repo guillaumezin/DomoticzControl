@@ -11,10 +11,15 @@ use Slim::Utils::Timers;
 use Slim::Utils::Prefs;
 use Time::HiRes;
 use Slim::Utils::Strings qw (string);
+use POSIX qw(ceil floor);
 
 my %idxTimers  = ();
 my %idxLevels  = ();
 my %domoUrl = ();
+my %cachedResults = ();
+my $funcptr = undef;
+my @requestsQueue = ();
+my $requestProcessing = 0;
 
 use constant SWITCH_TYPE_PUSH        => 5;
 use constant SWITCH_TYPE_SELECTOR    => 4;
@@ -22,6 +27,7 @@ use constant SWITCH_TYPE_TEMPERATURE => 3;
 use constant SWITCH_TYPE_DIMMER      => 2;
 use constant SWITCH_TYPE_SWITCH      => 1;
 use constant SWITCH_TYPE_NONE        => 0;
+use constant CACHE_TIME              => 30;
 
 sub getDisplayName { 
     return 'PLUGIN_DOMOTICZCONTROL'; 
@@ -86,7 +92,8 @@ sub initPref {
             ':' . $prefs->client($client)->get('port') .
             '/json.htm?';
         $log->debug('Setting URL to '. $anoDomoUrl);
-    }    
+    }
+    return $domoUrl{$client->id};
 }
 
 sub clientEvent {
@@ -136,8 +143,8 @@ sub _setToDomoticz {
     my $level = shift;
     my $IP='127.0.0.1';
     my $PORT='8080';   
- #   my $trendsurl = "http://$IP:$PORT/json.htm?type=command&param=switchlight&idx=" . $idx . '&switchcmd=' . $cmd . $level;
-    my $trendsurl = $domoUrl{$client->id} . 'type=command&param=' . $param . '&idx=' . $idx . '&' . $cmd . '=' . $level;
+ #   my $trendsurl = 'http://$IP:$PORT/json.htm?type=command&param=switchlight&idx=' . $idx . '&switchcmd=' . $cmd . $level;
+    my $trendsurl = initPref($client) . 'type=command&param=' . $param . '&idx=' . $idx . '&' . $cmd . '=' . $level;
     
     $log->debug('Send data to Domoticz: '. $trendsurl);  
     
@@ -315,7 +322,7 @@ sub _strMatch {
     my $strToCheck = shift;
     
     if (
-        !($strmatch eq "")
+        !($strmatch eq '')
         && ($strToCheck !~ $strmatch)
     ) {
         return 0;
@@ -642,7 +649,7 @@ sub _getScenesFromDomoticzErrorCallback {
 
     # Not sure what status to use here
     $request->setStatusBadParams();
-    $log->debug('No answer from Domoticz after get scenes');
+    $log->error('No answer from Domoticz after get scenes');
 }
 
 sub _getFromDomoticzCallback {
@@ -650,7 +657,7 @@ sub _getFromDomoticzCallback {
     my $request = $http->params('request');
     my $client  = $request->client();
     my @menu;
-    my $trendsurl = $domoUrl{$client->id} . 'type=scenes&used=true';
+    my $trendsurl = initPref($client) . 'type=scenes&used=true';
 
     $log->debug('Got answer from Domoticz after get for devices');
     
@@ -690,12 +697,8 @@ sub _getFromDomoticzErrorCallback {
 sub getFromDomoticz {
     my $request = shift;
     my $client  = $request->client();
-
-    initPref($client);
     
-    my $idx = $request->getParam('_idx');
-    my $cmd = $request->getParam('_cmd');
-    my $trendsurl = $domoUrl{$client->id} . 'type=devices&used=true';
+    my $trendsurl = initPref($client) . 'type=devices&used=true';
 
     $log->debug('Ask devices to Domoticz: '. $trendsurl);  
     
@@ -721,8 +724,6 @@ sub powerCallback {
     my $level;
     my $idx = $prefs->client($client)->get('deviceOnOff');
 
-    initPref($client);
-    
     if ($idx > 0) {
         if ($client->power()) {
             $level = 'On';
@@ -730,6 +731,7 @@ sub powerCallback {
         else {
             $level = 'Off';
         }
+        initPref($client);
         _setToDomoticz($client, $idx, $param, $cmd, $level);
     }
  }
@@ -745,6 +747,7 @@ sub setAlarmToDomoticz {
     my $cmd = 'switchcmd';
     my %alarms;
     my %snoozes;
+    initPref($client);
     my $prefsAlarms = $prefs->client($client)->get('alarms');
     my $prefsSnoozes = $prefs->client($client)->get('snoozes');
     if ($prefsAlarms) {
@@ -754,11 +757,10 @@ sub setAlarmToDomoticz {
         %snoozes = %{ $prefsSnoozes };
     }
    
-    initPref($client);
     
     #Data::Dump::dump($request);
     
-    if ($alarmType eq "sound") {
+    if ($alarmType eq 'sound') {
         $log->debug('Alarm on to Domoticz: '. $alarmId);
         $idx = $alarms{$alarmId};
         $level = 'On';
@@ -766,7 +768,7 @@ sub setAlarmToDomoticz {
             _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
     }
-    elsif ($alarmType eq "end") {
+    elsif ($alarmType eq 'end') {
         $log->debug('Alarm off to Domoticz: '. $alarmId);
         $idx = $alarms{$alarmId};
         $level = 'Off';
@@ -774,7 +776,7 @@ sub setAlarmToDomoticz {
             _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
     }
-    elsif ($alarmType eq "snooze") {
+    elsif ($alarmType eq 'snooze') {
         $log->debug('Snooze on to Domoticz: '. $alarmId);
         $idx = $snoozes{$alarmId};
         $level = 'On';
@@ -782,7 +784,7 @@ sub setAlarmToDomoticz {
             _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
     }
-    elsif ($alarmType eq "snooze_end") {
+    elsif ($alarmType eq 'snooze_end') {
         $log->debug('Snooze off to Domoticz: '. $alarmId);
         $idx = $snoozes{$alarmId};
         $level = 'Off';
@@ -792,16 +794,245 @@ sub setAlarmToDomoticz {
     }
 }
 
+sub _manageMacroStringQueue {
+    if (!$requestProcessing) {
+        my $request = shift @requestsQueue;
+        
+        if ($request) {
+            $log->debug('Next request');
+            $requestProcessing = 1;
+            my $client = $request->client();
+            
+            if (defined $cachedResults{$client->id} && (time < $cachedResults{$client->id}[0])) {
+                $log->debug('Using cached results');
+                _macroStringResult($request, $cachedResults{$client->id}[1]);
+            }
+            else {        
+                my $trendsurl = initPref($client) . 'type=devices&used=true';
+
+                $request->setStatusProcessing();
+                
+                $log->debug('Ask devices to Domoticz: '. $trendsurl);  
+                
+                my $http = Slim::Networking::SimpleAsyncHTTP->new(
+                    \&_getDevicesOnlyFromDomoticzCallback,
+                    \&_getDevicesOnlyFromDomoticzErrorCallback, 
+                    {
+                            request  => $request,
+                            cache    => 0,		# optional, cache result of HTTP request
+                    }
+                );
+            
+                $http->get($trendsurl);
+            }
+        }
+        else {
+            $log->debug('Request queue empty');
+        }
+    }
+    else {
+        $log->debug('Already processing, waiting for end of previous request');
+    }
+}
+
+sub _macroSubFunc {
+    my $replaceStr = shift;
+    my $func = shift;
+    my $funcArg = shift;
+    my $result = eval {
+        if ($func eq 'truncate') {
+            my $dec = $funcArg + 0; 
+            my $val = $replaceStr + 0.0;
+            if ($dec > 0) {
+                return sprintf('%.' . $dec . 'f', $val); 
+            }
+            else {
+                return sprintf('%d', $val); 
+            }
+        }
+        elsif ($func eq 'ceil') {
+            return sprintf('%d', ceil($replaceStr + 0.0)); 
+        }
+        elsif ($func eq 'floor') {
+            return sprintf('%d', floor($replaceStr + 0.0)); 
+        }
+        elsif ($func eq 'round') {
+            my $dec = $funcArg + 0; 
+            my $val = 5*10**(-1*($dec + 1));
+            if (($replaceStr + 0.0) >= 0.0) {
+                $val += $replaceStr + 0.0;
+            }
+            else {
+                $val += $replaceStr + 0.0;
+            }
+            if ($dec > 0) {
+                return sprintf('%.' . $dec . 'f', $val); 
+            }
+            else {
+                return sprintf('%d', $val); 
+            }
+        }
+        elsif ($func eq 'shorten') {
+            return substr($replaceStr, 0, $funcArg + 0);
+        }
+        else {
+            return $replaceStr;
+        }
+    };
+    if ($@) {
+        $log->error('Error while trying to eval macro function: [' . $@ . ']');
+        return $replaceStr;
+    }
+    else {
+        return $result;
+    }
+}
+
+sub _macroStringResult {
+    my $request = shift;
+    my $data = shift;
+    my $format = $request->getParam('format');
+#     $format = 'test ~i216~Type~shorten~2~ ~nMode absence~Status~°C';
+    my $result = $format;
+    
+    $log->debug('Search in results');
+    if (defined $data) {
+        $log->debug('Got data');
+        my @jsonElements = @{ $data };
+        while ($format =~ /(~i([0-9]+?)~(\S+?)(~(\S+?))?(~(\S+?))?~)/g) {
+            $log->debug('Got match idx');
+            my $whole = $1;
+            my $idx = $2 + 0;
+            my $element = $3;
+            my $func = $5;
+            my $funcArg = $7;
+            foreach my $f (@jsonElements) {
+                if ($f->{'idx'} == $idx) {
+                    $log->debug('Found element idx ' . $idx);
+                    if (defined $f->{$element}) {
+                        my $replaceStr = _macroSubFunc($f->{$element}, $func, $funcArg);
+                        $log->debug('Will replace by: ' . $replaceStr);
+                        $result =~ s/${whole}/${replaceStr}$1/;
+                    }
+                }
+            }
+        }
+        while ($format =~ /(~n(.+?)~(\S+?)(~(\S+?))?(~(\S+?))?~)/g) {
+            $log->debug('Got match name');
+            my $whole = $1;
+            my $name = $2;
+            my $element = $3;
+            my $func = $5;
+            my $funcArg = $7;
+            foreach my $f (@jsonElements) {
+                if ($f->{'Name'} eq $name) {
+                    $log->debug('Found element name ' . $name);
+                    if (defined $f->{$element}) {
+                        my $replaceStr = _macroSubFunc($f->{$element}, $func, $funcArg);
+                        $log->debug('Will replace by: ' . $replaceStr);
+                        $result =~ s/${whole}/${replaceStr}$1/;
+                    }
+                }
+            }
+        }
+    }
+    $request->addResult('macroString', $result);
+    $log->debug('Result: ' . $result);
+    
+    if (defined $funcptr && ref($funcptr) eq 'CODE') {
+        $log->debug('Calling next function');
+        $request->addParam('format', $result);        
+        eval { &{$funcptr}($request) };
+
+        # arrange for some useful logging if we fail
+        if ($@) {
+            $log->error('Error while trying to run function coderef: [' . $@ . ']');
+            $request->setStatusBadDispatch();
+            $request->dump('Request');
+        }
+    }
+    else {
+        if ($data) {
+            $log->debug('Done');
+        }
+        else {
+            $log->debug('No data');
+        }
+        $request->setStatusDone();
+    }
+    
+    $requestProcessing = 0;
+    _manageMacroStringQueue();
+}
+
+sub _getDevicesOnlyFromDomoticzCallback {
+    my $http = shift;
+    my $request = $http->params('request');
+    my $client = $request->client();
+
+    $log->debug('Got answer from Domoticz after get devices');
+    
+    my $content = $http->content();
+    my $decoded = decode_json($content);
+    my $results = undef;
+    
+    if ($decoded->{'result'}) {
+        $results = $decoded->{'result'};
+        $cachedResults{$client->id} = [time + CACHE_TIME, $results];
+    }
+    
+    _macroStringResult($request, $results);
+}
+
+sub _getDevicesOnlyFromDomoticzErrorCallback {
+    my $http = shift;
+    my $request = $http->params('request');
+    my @results;
+    
+    $log->error('No answer from Domoticz after get devices');
+    
+    _macroStringResult($request, undef);
+}
+
+sub macroString {
+    my $request = shift;
+    my $format = $request->getParam('format');
+#     $format = 'test ~i216~Type~shorten~2~ ~nMode absence~Status~°C';
+
+    $log->debug('Inside CLI request macroString');
+    
+    # Check that there is a pattern for us
+    if (
+        ($format =~ m/~i[0-9]+?~\S+~/)
+        || ($format =~ m/~n.+?~\S+~/)
+    ) {
+        push @requestsQueue, $request;
+
+        _manageMacroStringQueue();
+    }
+    # No pattern, jump to next dispatched sdtMacroString
+    else {
+        $log->debug('No pattern for us');
+        _macroStringResult($request, undef);
+    }
+}
+
 sub initPlugin {
     my $class = shift;
 
     if (main::WEBUI) {
-        require Plugins::DomoticzControl::Settings;
-        Plugins::DomoticzControl::Settings->new();
+        require Plugins::DomoticzControl::PlayerSettings;
+        Plugins::DomoticzControl::PlayerSettings->new();
     }
 
     $class->SUPER::initPlugin();
 
+                                                        #        |requires Client
+                                                        #        |  |is a Query
+                                                        #        |  |  |has Tags
+                                                        #        |  |  |  |Function to call
+                                                        #        C  Q  T  F
+    $funcptr = Slim::Control::Request::addDispatch(['sdtMacroString'], [1, 1, 1, \&macroString]);
     Slim::Control::Request::addDispatch(['menuDomoticzDimmer'],[1, 0, 1, \&menuDomoticzDimmer]);	
     Slim::Control::Request::addDispatch(['setToDomoticz'],[1, 0, 1, \&setToDomoticz]);	
     Slim::Control::Request::addDispatch(['setToDomoticzTimer'],[1, 0, 1, \&setToDomoticzTimer]);

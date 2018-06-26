@@ -9,7 +9,7 @@ PLUGIN_DOMOTICZCONTROL_DESC
 	EN	Control your Domoticz devices from your Jive based player. Parameters are located in player settings
 	FR	Contrôle de vos périphériques Domoticz depuis votre platine basée sur Jive. Le paramétrage se fait dans l'onglet platine
 
-PLUGIN_DOMOTICZCONTROL_BASIC_SETTINGS
+PLUGIN_DOMOTICZCONTROL_PLAYER_SETTINGS
 	EN	Domoticz Control Settings
 	FR	Réglages Domoticz Control
 
@@ -104,7 +104,7 @@ PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTERBYPLANID
 PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTEREMPYDISABLE
 	EN	Left empty to disable filtering
 	FR	Laisser vide pour désactiver le filtrage
-	
+
 PLUGIN_DOMOTICZCONTROL_SETTINGS_FILTER0DISABLE
 	EN	0 to disable filtering
 	FR	0 pour désactiver le filtrage
@@ -132,3 +132,11 @@ PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZE
 PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZEDOC
 	EN	Triggers the device with this Idx number as the same time as snooze<br/>Sends On/Off commands only, use a virtual switch and a script on Domoticz for more complex needs<br />0 to disable
 	FR	Déclenche le dispositif avec ce numéro Idx en même temps que la fonction snooze<br/>Envoie seulement des commandes On/Off, utilisez un bouton virtuel et un script Domoticz pour les besoins plus complexes<br />0 pour désactiver
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_SDT
+	EN	Custom Clock format strings
+	FR	Chaînes de format pour Custom Clock
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_SDTDOC
+	EN	Domoticz control can expose values based on devices state to Custom Clock Helper, if you have SuperDateTime (weather.com version 5.9.42 onwards).<br/>Values must be given based on device name or device idx number.<br/>~nDevicename~Nameofjsonfield~<br/>~iIdxofdevice~Nameofjsonfield~<br/>For instance, ~nExternal Temp Sensor~Temp~ will be replaced by the current temperature reported by Domoticz device named "External Temp Sensor".<br/>~i231~Temp~ same thing if 231 Idx points to the same device.<br/>You can have a look at <a href="https://www.domoticz.com/wiki/Domoticz_API/JSON_URL%27s">https://www.domoticz.com/wiki/Domoticz_API/JSON_URL's</a> to read Domoticz JSON documentation or have a look at your available devices fields connecting to http(s)://domoticzurl:domoticzport/json.htm?type=devices<br/>For convenience, you can append functions to change returned value.<br/>~nDevicename~Nameofjsonfield~truncate~ to truncate a number.<br/>~iIdxofdevice~Nameofjsonfield~ceil~ for ceil function.<br/>~nDevicename~Nameofjsonfield~floor~ for floor function.<br/>~iIdxofdevice~Nameofjsonfield~round~ to round a number as integer.<br/>~nDevicename~Nameofjsonfield~round~1~ to round a number keeping one decimal (1 can be any positive integer).<br/>~iIdxofdevice~Nameofjsonfield~shorten~3~ to keep only the three first characters of the value (3 can be any positive integer).
+	FR	Domoticz peut envoyer des valeurs basées sur l'état des dispositifs vers Custom Clock Helper, si vous avez SuperDateTime (version weather.com 5.9.42 ou plus récente).<br/>Les valeurs doivent être indiquées en se basant sur le nom ou le numéro idx du dispositif.<br/>~nNomdudispositif~Nomduchampjson~<br/>~iIdxdudispositif~Nomduchampjson~<br/>Par exemple, ~nCapteur de température exterieur~Temp~ sera remplacé par la température mesurée par le dispositif nommé "Capteur de température exterieur".<br/>~i231~Temp~ même chose si 231 corresponds au numéro Idx du même dispositif.<br/>Vous pouvez consulter <a href="https://www.domoticz.com/wiki/Domoticz_API/JSON_URL%27s">https://www.domoticz.com/wiki/Domoticz_API/JSON_URL's</a> pour la documentation JSON de Domoticz ou consulter les champs disponibles pour vos dispositifs en vous connectant à http(s)://ursdedomoticz:portdedomoticz/json.htm?type=devices<br/>Par commoditié, vous pouvez ajouter des fonctions pour changer les valeurs obtenues.<br/>~nNomdudispositif~Nomduchampjson~truncate~ pour tronquer le nombre obtenu sans arrondi.<br/>~iIdxdudispositif~Nomduchampjson~ceil~ pour la fonction ceil sur un nombre.<br/>~nNomdudispositif~Nomduchampjson~floor~ pour la fonction floor sur un nombre.<br/>~iIdxdudispositif~Nomduchampjson~round~ pour arrondir un nombre vers sa valeur entière<br/>~nNomdudispositif~Nomduchampjson~round~1~ pour arrondir un nombre une décimale après la virgule (1 peut être n'importe quel entier positif).<br/>~iIdxdudispositif~Nomduchampjson~shorten~3~ pour ne garder que les 3 premiers caractères de la valeur obtenues (3 peut être n'importe quel entier positif).
