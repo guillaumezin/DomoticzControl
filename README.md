@@ -13,11 +13,15 @@ To install the plugin, add the repository URL http://domoticzcontrol.e-monsite.c
 Usage
 -----
 
-1. For each player, go to the player setting page and choose Domoticz Control settings.
+1. For each player, go to the player settings page and choose Domoticz Control settings.
 
 1. There you can configure URL access for Domoticz and filter for each player which control you want to get on the player screen.
 
 1. You can also associate alarms and snoozes with Domoticz devices (On/Off commands only). This can be useful to activate Domoticz scripts through a virtual switch for instance.
+
+1. You can associate a Domoticz device that will turn on and off at the same time as a player.
+
+1. If you have Custom Clock, Custom Clock Helper and SuperDateTime (weather.com version 5.9.42 onwards), Domoticz Control can expose values based on devices state to Custom Clock Helper. The formatting is explained in Domoticz Control settings of the player settings page.
 
 1. Domoticz control should appear in the Extra menu of your Jive based players.
 
