@@ -768,10 +768,10 @@ sub setAlarmToDomoticz {
         $log->debug('Alarm on to Domoticz: '. $alarmId);
         $idx = $alarms{$alarmId};
         $level = 'On';
-        if (length $idx) {
+        if ((length $idx) && ($idx > 0)) {
             _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
-        if (length $generalAlarm) {
+        if ((length $generalAlarm) && ($generalAlarm > 0)) {
             _setToDomoticz($client, $generalAlarm, $param, $cmd, $level);
         }
     }
@@ -779,10 +779,10 @@ sub setAlarmToDomoticz {
         $log->debug('Alarm off to Domoticz: '. $alarmId);
         $idx = $alarms{$alarmId};
         $level = 'Off';
-        if (length $idx) {
+        if ((length $idx) && ($idx > 0)) {
             _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
-        if (length $generalAlarm) {
+        if ((length $generalAlarm) && ($generalAlarm > 0)) {
             _setToDomoticz($client, $generalAlarm, $param, $cmd, $level);
         }
     }
@@ -790,10 +790,10 @@ sub setAlarmToDomoticz {
         $log->debug('Snooze on to Domoticz: '. $alarmId);
         $idx = $snoozes{$alarmId};
         $level = 'On';
-        if (length $idx) {
+        if ((length $idx) && ($idx > 0)) {
             _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
-        if (length $generalSnooze) {
+        if ((length $generalSnooze) && ($generalSnooze > 0)) {
             _setToDomoticz($client, $generalSnooze, $param, $cmd, $level);
         }
     }
@@ -801,10 +801,10 @@ sub setAlarmToDomoticz {
         $log->debug('Snooze off to Domoticz: '. $alarmId);
         $idx = $snoozes{$alarmId};
         $level = 'Off';
-        if (length $generalSnooze) {
-            _setToDomoticz($client, $generalSnooze, $param, $cmd, $level);
+        if ((length $idx) && ($idx > 0)) {
+            _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
-        if (length $generalSnooze) {
+        if ((length $generalSnooze) && ($generalSnooze > 0)) {
             _setToDomoticz($client, $generalSnooze, $param, $cmd, $level);
         }
     }
