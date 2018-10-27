@@ -63,6 +63,8 @@ my $defaultPrefs = {
     'filterByDescription'       => '',
     'filterByPlanId'            => 0,
     'deviceOnOff'               => 0,
+    'generalAlarm'              => 0,
+    'generalSnooze'             => 0,
 };
 
 sub getPrefNames {
@@ -748,6 +750,8 @@ sub setAlarmToDomoticz {
     my %alarms;
     my %snoozes;
     initPref($client);
+    my $generalAlarm = $prefs->client($client)->get('generalAlarm');
+    my $generalSnooze = $prefs->client($client)->get('generalSnooze');
     my $prefsAlarms = $prefs->client($client)->get('alarms');
     my $prefsSnoozes = $prefs->client($client)->get('snoozes');
     if ($prefsAlarms) {
@@ -767,6 +771,9 @@ sub setAlarmToDomoticz {
         if (length $idx) {
             _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
+        if (length $generalAlarm) {
+            _setToDomoticz($client, $generalAlarm, $param, $cmd, $level);
+        }
     }
     elsif ($alarmType eq 'end') {
         $log->debug('Alarm off to Domoticz: '. $alarmId);
@@ -774,6 +781,9 @@ sub setAlarmToDomoticz {
         $level = 'Off';
         if (length $idx) {
             _setToDomoticz($client, $idx, $param, $cmd, $level);
+        }
+        if (length $generalAlarm) {
+            _setToDomoticz($client, $generalAlarm, $param, $cmd, $level);
         }
     }
     elsif ($alarmType eq 'snooze') {
@@ -783,13 +793,19 @@ sub setAlarmToDomoticz {
         if (length $idx) {
             _setToDomoticz($client, $idx, $param, $cmd, $level);
         }
+        if (length $generalSnooze) {
+            _setToDomoticz($client, $generalSnooze, $param, $cmd, $level);
+        }
     }
     elsif ($alarmType eq 'snooze_end') {
         $log->debug('Snooze off to Domoticz: '. $alarmId);
         $idx = $snoozes{$alarmId};
         $level = 'Off';
-        if (length $idx) {
-            _setToDomoticz($client, $idx, $param, $cmd, $level);
+        if (length $generalSnooze) {
+            _setToDomoticz($client, $generalSnooze, $param, $cmd, $level);
+        }
+        if (length $generalSnooze) {
+            _setToDomoticz($client, $generalSnooze, $param, $cmd, $level);
         }
     }
 }

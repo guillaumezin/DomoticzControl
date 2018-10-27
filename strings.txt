@@ -117,6 +117,10 @@ PLUGIN_DOMOTICZCONTROL_ALARM
 	EN	Alarm
 	FR	Réveil
 
+PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARM_GENERAL
+	EN	Idx associated to every alarms
+	FR	Idx associé à toutes les alarmes
+
 PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARM
 	EN	Idx associated to alarm
 	FR	Idx associé à l'alarme
@@ -128,6 +132,10 @@ PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARMDOC
 PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZE
 	EN	Idx associated to snooze
 	FR	Idx associé au snooze 
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZE_GENERAL
+	EN	Idx associated to every snoozes
+	FR	Idx associé à tous les snoozes 
 
 PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZEDOC
 	EN	Triggers the device with this Idx number as the same time as snooze<br/>Sends On/Off commands only, use a virtual switch and a script on Domoticz for more complex needs<br />0 to disable

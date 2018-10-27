@@ -86,6 +86,19 @@
 
 <br/>
                 <div class="alarmSection">
+                [% WRAPPER settingSection %]
+                    [% WRAPPER settingGroup title="PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARM_GENERAL" desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARMDOC" %]
+                                    <input type="number" min="0" name="pref_generalAlarm" id="generalAlarm" value="[% prefs.pref_generalAlarm %]"/>
+                    [% END %]
+                    [% WRAPPER settingGroup title="PLUGIN_DOMOTICZCONTROL_SETTINGS_SNOOZE_GENERAL" desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_ALARMDOC" %]
+                                    <input type="number" min="0" name="pref_generalSnooze" id="generalSnooze" value="[% prefs.pref_generalSnooze %]"/>
+                    [% END %]
+                [% END %]
+                </div>
+
+<br/>
+                
+                <div class="alarmSection">
                 [% FOREACH alarm = alarms %]
                         [% PROCESS alarmSettingDomoticzControl %]
                         <br/>
