@@ -252,6 +252,10 @@ sub _filterDomoticzSupportedDevice {
         return SWITCH_TYPE_TEMPERATURE;
     }
     
+    if (!defined $elem->{'SwitchType'}) {
+        return SWITCH_TYPE_NONE;
+    }
+    
     if (!defined $elem->{'SwitchTypeVal'}) {
         return SWITCH_TYPE_NONE;
     }
