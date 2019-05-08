@@ -815,9 +815,9 @@ sub setAlarmToDomoticz {
 }
 
 sub _manageMacroStringQueue {
-    if (!$requestProcessing) {
-        my $request = shift @requestsQueue;
-        
+    my $request = shift @requestsQueue;
+    
+    if (!$requestProcessing) {        
         if ($request) {
             $log->debug('Next request');
             $requestProcessing = 1;
@@ -830,8 +830,7 @@ sub _manageMacroStringQueue {
             else {        
                 my $trendsurl = initPref($client) . 'type=devices&used=true';
 
-                $request->setStatusProcessing();
-                
+                $request->setStatusProcessing();                
                 $log->debug('Ask devices to Domoticz: '. $trendsurl);  
                 
                 my $http = Slim::Networking::SimpleAsyncHTTP->new(
@@ -851,6 +850,7 @@ sub _manageMacroStringQueue {
         }
     }
     else {
+        $request->setStatusProcessing();                
         $log->debug('Already processing, waiting for end of previous request');
     }
 }
@@ -908,6 +908,31 @@ sub _macroSubFunc {
     }
 }
 
+sub _macroCallNextMacro {
+    my $request = shift;
+    my $result = shift;
+    
+    $request->addResult('macroString', $result);
+    $log->debug('Result: ' . $result);
+    
+    if (defined $funcptr && ref($funcptr) eq 'CODE') {
+        $log->debug('Calling next function');
+        $request->addParam('format', $result);        
+        eval { &{$funcptr}($request) };
+
+        # arrange for some useful logging if we fail
+        if ($@) {
+            $log->error('Error while trying to run function coderef: [' . $@ . ']');
+            $request->setStatusBadDispatch();
+            $request->dump('Request');
+        }
+    }
+    else {
+        $log->debug('Done');
+        $request->setStatusDone();
+    }    
+}
+
 sub _macroStringResult {
     my $request = shift;
     my $data = shift;
@@ -915,9 +940,8 @@ sub _macroStringResult {
 #     $format = 'test ~i216~Type~shorten~2~ ~nMode absence~Status~°C';
     my $result = $format;
     
-    $log->debug('Search in results');
     if (defined $data) {
-        $log->debug('Got data');
+        $log->debug('Search in results for ' . $format);
         my @jsonElements = @{ $data };
         while ($format =~ /(~i([0-9]+?)~(\S+?)(~(\S+?))?(~(\S+?))?~)/g) {
             $log->debug('Got match idx');
@@ -956,30 +980,8 @@ sub _macroStringResult {
             }
         }
     }
-    $request->addResult('macroString', $result);
-    $log->debug('Result: ' . $result);
     
-    if (defined $funcptr && ref($funcptr) eq 'CODE') {
-        $log->debug('Calling next function');
-        $request->addParam('format', $result);        
-        eval { &{$funcptr}($request) };
-
-        # arrange for some useful logging if we fail
-        if ($@) {
-            $log->error('Error while trying to run function coderef: [' . $@ . ']');
-            $request->setStatusBadDispatch();
-            $request->dump('Request');
-        }
-    }
-    else {
-        if ($data) {
-            $log->debug('Done');
-        }
-        else {
-            $log->debug('No data');
-        }
-        $request->setStatusDone();
-    }
+    _macroCallNextMacro($request, $result);
     
     $requestProcessing = 0;
     _manageMacroStringQueue();
@@ -1019,7 +1021,7 @@ sub macroString {
     my $format = $request->getParam('format');
 #     $format = 'test ~i216~Type~shorten~2~ ~nMode absence~Status~°C';
 
-    $log->debug('Inside CLI request macroString');
+    $log->debug('Inside CLI request macroString for ' . $format . ' status ' . $request->getStatusText());
     
     # Check that there is a pattern for us
     if (
@@ -1033,7 +1035,7 @@ sub macroString {
     # No pattern, jump to next dispatched sdtMacroString
     else {
         $log->debug('No pattern for us');
-        _macroStringResult($request, undef);
+        _macroCallNextMacro($request, $format);
     }
 }
 
