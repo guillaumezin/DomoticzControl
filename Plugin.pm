@@ -134,7 +134,7 @@ sub _setToDomoticzErrorCallback {
 }
 
 sub needsClient {
-	return 1;
+    return 1;
 }
 
 sub _setToDomoticz {
@@ -158,7 +158,7 @@ sub _setToDomoticz {
         \&_setToDomoticzCallback,
         \&_setToDomoticzErrorCallback, 
         {
-            cache    => 0,		# optional, cache result of HTTP request
+            cache    => 0, # optional, cache result of HTTP request
         }
     );
     
@@ -422,7 +422,7 @@ sub _getScenesFromDomoticzCallback {
                                 level  => 'On',
                             },
                         },
-                    },		
+                    },
                 };
             }
             if (
@@ -454,7 +454,7 @@ sub _getScenesFromDomoticzCallback {
                                 level  => 'Off',
                             },
                         },
-                    },		
+                    },
                 };
             }
         }
@@ -468,14 +468,14 @@ sub _getScenesFromDomoticzCallback {
                 $log->debug('Selector LevelInt=' . $f->{'LevelInt'});
                 
                 my @choiceStrings = split(/\|/, $f->{'LevelNames'});
-		my @choiceActions;
-		my $currentSetting = 0;
-		my $level = 0;
-		
+                my @choiceActions;
+                my $currentSetting = 0;
+                my $level = 0;
+
                 if ($f->{'LevelOffHidden'}) {
                     splice(@choiceStrings, 0, 1);
                 }
-		for my $iii (0..$#choiceStrings) {
+                for my $iii (0..$#choiceStrings) {
                     $level = $iii * 10;
                     if ($f->{'LevelOffHidden'}) {
                         $level = $level + 10;
@@ -494,8 +494,8 @@ sub _getScenesFromDomoticzCallback {
                             level  => $level,
                         },
                     },
-		}
-		
+                }
+
                 push @menu, {
                     text     => $f->{'Name'},
                     selectedIndex => $currentSetting,
@@ -598,7 +598,7 @@ sub _getScenesFromDomoticzCallback {
                                 level  => 'Off',
                             },
                         },
-                    },		
+                    },
                 };
             }
             # push On/Off
@@ -625,7 +625,7 @@ sub _getScenesFromDomoticzCallback {
                                 level  => $doLevel,
                             },
                         },
-                    },		
+                    },
                 };
             }
         }
@@ -678,13 +678,13 @@ sub _getFromDomoticzCallback {
     $log->debug('Ask scenes to Domoticz: '. $trendsurl);  
     
     my $http = Slim::Networking::SimpleAsyncHTTP->new(
-	\&_getScenesFromDomoticzCallback,
-	\&_getScenesFromDomoticzErrorCallback, 
-	{
-		request  => $request,
-		devices  => \@results,
-		cache    => 0,		# optional, cache result of HTTP request
-	}
+        \&_getScenesFromDomoticzCallback,
+        \&_getScenesFromDomoticzErrorCallback, 
+        {
+            request  => $request,
+            devices  => \@results,
+            cache    => 0, # optional, cache result of HTTP request
+        }
     );
     
     $http->get($trendsurl);
@@ -709,12 +709,12 @@ sub getFromDomoticz {
     $log->debug('Ask devices to Domoticz: '. $trendsurl);  
     
     my $http = Slim::Networking::SimpleAsyncHTTP->new(
-	\&_getFromDomoticzCallback,
-	\&_getFromDomoticzErrorCallback, 
-	{
-		request  => $request,
-		cache    => 0,		# optional, cache result of HTTP request
-	}
+        \&_getFromDomoticzCallback,
+        \&_getFromDomoticzErrorCallback, 
+        {
+            request  => $request,
+            cache    => 0, # optional, cache result of HTTP request
+        }
     );
     
     $http->get($trendsurl);
@@ -815,12 +815,17 @@ sub setAlarmToDomoticz {
 }
 
 sub _manageMacroStringQueue {
-    my $request = shift @requestsQueue;
-    
-    if (!$requestProcessing) {        
-        if ($request) {
-            $log->debug('Next request');
-            $requestProcessing = 1;
+    my $request = shift;
+
+    if (!$request) {
+        $requestProcessing = 0;
+        $log->debug('Next request');
+        $request = shift @requestsQueue;
+    }
+
+    if ($request) {
+        if (!$requestProcessing) {
+            $log->debug('Processing request');
             my $client = $request->client();
             
             if (defined $cachedResults{$client->id} && (time < $cachedResults{$client->id}[0])) {
@@ -830,7 +835,7 @@ sub _manageMacroStringQueue {
             else {        
                 my $trendsurl = initPref($client) . 'type=devices&used=true';
 
-                $request->setStatusProcessing();                
+                $request->setStatusProcessing();
                 $log->debug('Ask devices to Domoticz: '. $trendsurl);  
                 
                 my $http = Slim::Networking::SimpleAsyncHTTP->new(
@@ -838,20 +843,22 @@ sub _manageMacroStringQueue {
                     \&_getDevicesOnlyFromDomoticzErrorCallback, 
                     {
                             request  => $request,
-                            cache    => 0,		# optional, cache result of HTTP request
+                            cache    => 0, # optional, cache result of HTTP request
                     }
                 );
-            
+
+                $requestProcessing = 1;
                 $http->get($trendsurl);
             }
         }
         else {
-            $log->debug('Request queue empty');
+            push @requestsQueue, $request;
+            $request->setStatusProcessing();
+            $log->debug('Already processing, waiting for end of previous request');
         }
     }
     else {
-        $request->setStatusProcessing();                
-        $log->debug('Already processing, waiting for end of previous request');
+        $log->debug('Request queue empty');
     }
 }
 
@@ -982,9 +989,7 @@ sub _macroStringResult {
     }
     
     _macroCallNextMacro($request, $result);
-    
-    $requestProcessing = 0;
-    _manageMacroStringQueue();
+    _manageMacroStringQueue(undef);
 }
 
 sub _getDevicesOnlyFromDomoticzCallback {
@@ -1028,9 +1033,7 @@ sub macroString {
         ($format =~ m/~i[0-9]+?~\S+~/)
         || ($format =~ m/~n.+?~\S+~/)
     ) {
-        push @requestsQueue, $request;
-
-        _manageMacroStringQueue();
+        _manageMacroStringQueue($request);
     }
     # No pattern, jump to next dispatched sdtMacroString
     else {
@@ -1055,20 +1058,20 @@ sub initPlugin {
                                                         #        |  |  |  |Function to call
                                                         #        C  Q  T  F
     $funcptr = Slim::Control::Request::addDispatch(['sdtMacroString'], [1, 1, 1, \&macroString]);
-    Slim::Control::Request::addDispatch(['menuDomoticzDimmer'],[1, 0, 1, \&menuDomoticzDimmer]);	
-    Slim::Control::Request::addDispatch(['setToDomoticz'],[1, 0, 1, \&setToDomoticz]);	
+    Slim::Control::Request::addDispatch(['menuDomoticzDimmer'],[1, 0, 1, \&menuDomoticzDimmer]);
+    Slim::Control::Request::addDispatch(['setToDomoticz'],[1, 0, 1, \&setToDomoticz]);
     Slim::Control::Request::addDispatch(['setToDomoticzTimer'],[1, 0, 1, \&setToDomoticzTimer]);
-    Slim::Control::Request::addDispatch(['getFromDomoticz'],[1, 0, 1, \&getFromDomoticz]);	
+    Slim::Control::Request::addDispatch(['getFromDomoticz'],[1, 0, 1, \&getFromDomoticz]);
 
     my @menu = ({
         stringToken   => getDisplayName(),
         id     => 'pluginDomoticzControlmenu',
         'icon-id' => Plugins::DomoticzControl::Plugin->_pluginDataFor('icon'),
         weight => 50,
-	actions => {
+        actions => {
             go => {
                 player => 0,
-                cmd	 => ['getFromDomoticz'],
+                cmd => ['getFromDomoticz'],
             }
         }
     });
