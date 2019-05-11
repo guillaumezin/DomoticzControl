@@ -21,7 +21,7 @@ Usage
 
 1. You can associate a Domoticz device that will turn on and off at the same time as a player.
 
-1. If you have Custom Clock, Custom Clock Helper and SuperDateTime (weather.com version 5.9.42 onwards), Domoticz Control can expose values based on devices state to Custom Clock Helper. The formatting is explained in Domoticz Control settings of the player settings page.
+1. If you have [Custom Clock, Custom Clock Helper](http://wiki.slimdevices.com/index.php/Custom_Clock_applet) and [SuperDateTime (weather.com version 5.9.42 onwards)](https://sourceforge.net/projects/sdt-weather-com), Domoticz Control can expose values based on devices state to Custom Clock Helper. The formatting is explained in Domoticz Control settings of the player settings page.
 
 1. Domoticz control should appear in the Extra menu of your Jive based players.
 
