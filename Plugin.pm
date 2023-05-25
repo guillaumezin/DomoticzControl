@@ -377,7 +377,7 @@ sub _filterDomoticz {
 
 sub _getScenesFromDomoticzCallback {
     my $http = shift;
-    my $request = $http->params('request');
+    my $request = $http->params('slimrequest');
     my $client = $request->client();
     my @devices;
     my @menu;
@@ -651,7 +651,7 @@ sub _getScenesFromDomoticzCallback {
 sub _getScenesFromDomoticzErrorCallback {
     my $http    = shift;
     my $error   = $http->error;
-    my $request = $http->params('request');
+    my $request = $http->params('slimrequest');
 
     # Not sure what status to use here
     $request->setStatusBadParams();
@@ -660,7 +660,7 @@ sub _getScenesFromDomoticzErrorCallback {
 
 sub _getFromDomoticzCallback {
     my $http = shift;
-    my $request = $http->params('request');
+    my $request = $http->params('slimrequest');
     my $client  = $request->client();
     my @menu;
     my $trendsurl = initPref($client) . 'type=scenes&used=true';
@@ -681,7 +681,7 @@ sub _getFromDomoticzCallback {
         \&_getScenesFromDomoticzCallback,
         \&_getScenesFromDomoticzErrorCallback, 
         {
-            request  => $request,
+            slimrequest  => $request,
             devices  => \@results,
             cache    => 0, # optional, cache result of HTTP request
         }
@@ -693,7 +693,7 @@ sub _getFromDomoticzCallback {
 sub _getFromDomoticzErrorCallback {
     my $http    = shift;
     my $error   = $http->error;
-    my $request = $http->params('request');
+    my $request = $http->params('slimrequest');
 
     # Not sure what status to use here
     $request->setStatusBadParams();
@@ -712,7 +712,7 @@ sub getFromDomoticz {
         \&_getFromDomoticzCallback,
         \&_getFromDomoticzErrorCallback, 
         {
-            request  => $request,
+            slimrequest  => $request,
             cache    => 0, # optional, cache result of HTTP request
         }
     );
@@ -842,7 +842,7 @@ sub _manageMacroStringQueue {
                     \&_getDevicesOnlyFromDomoticzCallback,
                     \&_getDevicesOnlyFromDomoticzErrorCallback, 
                     {
-                            request  => $request,
+                            slimrequest  => $request,
                             cache    => 0, # optional, cache result of HTTP request
                     }
                 );
@@ -994,7 +994,7 @@ sub _macroStringResult {
 
 sub _getDevicesOnlyFromDomoticzCallback {
     my $http = shift;
-    my $request = $http->params('request');
+    my $request = $http->params('slimrequest');
     my $client = $request->client();
 
     $log->debug('Got answer from Domoticz after get devices');
@@ -1013,7 +1013,7 @@ sub _getDevicesOnlyFromDomoticzCallback {
 
 sub _getDevicesOnlyFromDomoticzErrorCallback {
     my $http = shift;
-    my $request = $http->params('request');
+    my $request = $http->params('slimrequest');
     my @results;
     
     $log->error('No answer from Domoticz after get devices');
