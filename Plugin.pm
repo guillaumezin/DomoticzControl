@@ -308,6 +308,8 @@ sub _filterDomoticzSupportedDevice {
     if (
         ($elem->{'SwitchTypeVal'} == 13)
         || ($elem->{'SwitchTypeVal'} == 16)
+        || ($elem->{'SwitchTypeVal'} == 21)
+        || ($elem->{'SwitchTypeVal'} == 22)
     ) {
         if ($prefs->client($client)->get('hideBlinds')) {
             return SWITCH_TYPE_NONE;
