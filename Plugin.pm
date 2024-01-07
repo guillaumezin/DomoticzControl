@@ -78,21 +78,20 @@ sub initPref {
     $log->debug('Init pref');
     
     unless ($domoUrl{$client->id}) {
+        if ($prefs->client($client)->get('https') and not Slim::Networking::Async::HTTP->hasSSL()) {
+            $log->error('No HTTPS support built in, but https URL required');
+        }
         $prefs->client($client)->init($defaultPrefs);
         $domoUrl{$client->id} = 
-            $prefs->client($client)->get('https') ? 'https://' : 'http://' .
+            ($prefs->client($client)->get('https') ? 'https://' : 'http://') .
             ((!($prefs->client($client)->get('user') eq '') && ($prefs->client($client)->get('password') eq '')) ? $prefs->client($client)->get('user') . '@' : '') .
             ((!($prefs->client($client)->get('password') eq '')) ? $prefs->client($client)->get('user') . ':' . $prefs->client($client)->get('password') . '@' : '') .
-            $prefs->client($client)->get('address') .
-            ':' . $prefs->client($client)->get('port') .
-            '/json.htm?';
+            $prefs->client($client)->get('address') . ':' . $prefs->client($client)->get('port') . '/json.htm?';
         my $anoDomoUrl = 
-            $prefs->client($client)->get('https') ? 'https://' : 'http://' .
+            ($prefs->client($client)->get('https') ? 'https://' : 'http://') .
             ((!($prefs->client($client)->get('user') eq '') && ($prefs->client($client)->get('password') eq '')) ? 'username@' : '') .
             ((!($prefs->client($client)->get('password') eq '')) ? 'username:********@' : '') .
-            $prefs->client($client)->get('address') .
-            ':' . $prefs->client($client)->get('port') .
-            '/json.htm?';
+            $prefs->client($client)->get('address') . ':' . $prefs->client($client)->get('port') . '/json.htm?';
         $log->debug('Setting URL to '. $anoDomoUrl);
     }
     return $domoUrl{$client->id};
@@ -130,7 +129,12 @@ sub _setToDomoticzErrorCallback {
     my $http    = shift;
     my $error   = $http->error;
 
-    $log->error('No answer from Domoticz after set');
+    if (defined $error) {
+        $log->error("Got error after set: $error");
+    }
+    else {
+        $log->error('No answer from Domoticz after set');
+    }
 }
 
 sub needsClient {
@@ -143,12 +147,12 @@ sub _setToDomoticz {
     my $param = shift;
     my $cmd = shift;
     my $level = shift;
-    my $IP='127.0.0.1';
-    my $PORT='8080';   
+ #   my $IP='127.0.0.1';
+ #   my $PORT='8080';   
  #   my $trendsurl = 'http://$IP:$PORT/json.htm?type=command&param=switchlight&idx=' . $idx . '&switchcmd=' . $cmd . $level;
-    my $trendsurl = initPref($client) . 'type=command&param=' . $param . '&idx=' . $idx . '&' . $cmd . '=' . $level;
-    
-    $log->debug('Send data to Domoticz: '. $trendsurl);  
+    my $trendsurl = 'type=command&param=' . $param . '&idx=' . $idx . '&' . $cmd . '=' . $level;    
+    $log->debug('Send data to Domoticz: '. $trendsurl);
+    $trendsurl = initPref($client) . $trendsurl;
     
     if (exists $idxTimers{$idx}) {
         delete $idxTimers{$idx};
@@ -657,7 +661,12 @@ sub _getScenesFromDomoticzErrorCallback {
 
     # Not sure what status to use here
     $request->setStatusBadParams();
-    $log->error('No answer from Domoticz after get scenes');
+    if (defined $error) {
+        $log->error("Got error after get scenes: $error");
+    }
+    else {
+        $log->error('No answer from Domoticz after get scenes');
+    }
 }
 
 sub _getFromDomoticzCallback {
@@ -665,7 +674,6 @@ sub _getFromDomoticzCallback {
     my $request = $http->params('slimrequest');
     my $client  = $request->client();
     my @menu;
-    my $trendsurl = initPref($client) . 'type=scenes&used=true';
 
     $log->debug('Got answer from Domoticz after get for devices');
     
@@ -677,7 +685,9 @@ sub _getFromDomoticzCallback {
         @results = @{ $decoded->{'result'} };
     }
   
+    my $trendsurl = 'type=command&param=getscenes&used=true';
     $log->debug('Ask scenes to Domoticz: '. $trendsurl);  
+    $trendsurl = initPref($client) . $trendsurl;
     
     my $http = Slim::Networking::SimpleAsyncHTTP->new(
         \&_getScenesFromDomoticzCallback,
@@ -699,16 +709,21 @@ sub _getFromDomoticzErrorCallback {
 
     # Not sure what status to use here
     $request->setStatusBadParams();
-    $log->error('No answer from Domoticz after get devices');
+    if (defined $error) {
+        $log->error("Got error after get devices: $error");
+    }
+    else {
+        $log->error('No answer from Domoticz after get devices');
+    }
 }
 
 sub getFromDomoticz {
     my $request = shift;
     my $client  = $request->client();
     
-    my $trendsurl = initPref($client) . 'type=devices&used=true';
-
+    my $trendsurl = 'type=command&param=getdevices&used=true';
     $log->debug('Ask devices to Domoticz: '. $trendsurl);  
+    $trendsurl = initPref($client) . $trendsurl;
     
     my $http = Slim::Networking::SimpleAsyncHTTP->new(
         \&_getFromDomoticzCallback,
@@ -716,6 +731,9 @@ sub getFromDomoticz {
         {
             slimrequest  => $request,
             cache    => 0, # optional, cache result of HTTP request
+        },
+        {
+            slimrequest  => $request,
         }
     );
     
@@ -835,10 +853,11 @@ sub _manageMacroStringQueue {
                 _macroStringResult($request, $cachedResults{$client->id}[1]);
             }
             else {        
-                my $trendsurl = initPref($client) . 'type=devices&used=true';
-
                 $request->setStatusProcessing();
-                $log->debug('Ask devices to Domoticz: '. $trendsurl);  
+                
+                my $trendsurl = 'type=command&param=getdevices&used=true';
+                $log->debug('Ask devices to Domoticz: '. $trendsurl);
+                $trendsurl = initPref($client) . $trendsurl;                
                 
                 my $http = Slim::Networking::SimpleAsyncHTTP->new(
                     \&_getDevicesOnlyFromDomoticzCallback,
@@ -1015,10 +1034,16 @@ sub _getDevicesOnlyFromDomoticzCallback {
 
 sub _getDevicesOnlyFromDomoticzErrorCallback {
     my $http = shift;
+    my $error = $http->error;
     my $request = $http->params('slimrequest');
     my @results;
     
-    $log->error('No answer from Domoticz after get devices');
+    if (defined $error) {
+        $log->error("Got error after get devices: $error");
+    }
+    else {
+        $log->error('No answer from Domoticz after get devices');
+    }
     
     _macroStringResult($request, undef);
 }
