@@ -46,8 +46,9 @@ my $prefs = preferences('plugin.DomoticzControl');
 
 my $defaultPrefs = {
     'address'                   => '127.0.0.1',
-    'port'                      => 8080,
-    'https'                     => 0,
+    'port'                      => 443,
+    'https'                     => 1,
+    'insecure'                  => 0,
     'user'                      => '',
     'password'                  => '',
     'onlyFavorites'             => 1,
@@ -153,6 +154,10 @@ sub _setToDomoticz {
     my $trendsurl = 'type=command&param=' . $param . '&idx=' . $idx . '&' . $cmd . '=' . $level;    
     $log->debug('Send data to Domoticz: '. $trendsurl);
     $trendsurl = initPref($client) . $trendsurl;
+    my $options;
+    if ($prefs->client($client)->get('insecure')) {
+        $options = { SSL_verify_mode => Net::SSLeay::VERIFY_NONE() };
+    }    
     
     if (exists $idxTimers{$idx}) {
         delete $idxTimers{$idx};
@@ -163,6 +168,7 @@ sub _setToDomoticz {
         \&_setToDomoticzErrorCallback, 
         {
             cache    => 0, # optional, cache result of HTTP request
+            options  => $options
         }
     );
     
@@ -688,6 +694,10 @@ sub _getFromDomoticzCallback {
     my $trendsurl = 'type=command&param=getscenes&used=true';
     $log->debug('Ask scenes to Domoticz: '. $trendsurl);  
     $trendsurl = initPref($client) . $trendsurl;
+    my $options;
+    if ($prefs->client($client)->get('insecure')) {
+        $options = { SSL_verify_mode => Net::SSLeay::VERIFY_NONE() };
+    }    
     
     my $http = Slim::Networking::SimpleAsyncHTTP->new(
         \&_getScenesFromDomoticzCallback,
@@ -696,6 +706,7 @@ sub _getFromDomoticzCallback {
             slimrequest  => $request,
             devices  => \@results,
             cache    => 0, # optional, cache result of HTTP request
+            options  => $options
         }
     );
     
@@ -724,6 +735,10 @@ sub getFromDomoticz {
     my $trendsurl = 'type=command&param=getdevices&used=true';
     $log->debug('Ask devices to Domoticz: '. $trendsurl);  
     $trendsurl = initPref($client) . $trendsurl;
+    my $options;
+    if ($prefs->client($client)->get('insecure')) {
+        $options = { SSL_verify_mode => Net::SSLeay::VERIFY_NONE() };
+    }    
     
     my $http = Slim::Networking::SimpleAsyncHTTP->new(
         \&_getFromDomoticzCallback,
@@ -731,6 +746,7 @@ sub getFromDomoticz {
         {
             slimrequest  => $request,
             cache    => 0, # optional, cache result of HTTP request
+            options  => $options
         },
         {
             slimrequest  => $request,
@@ -858,6 +874,10 @@ sub _manageMacroStringQueue {
                 my $trendsurl = 'type=command&param=getdevices&used=true';
                 $log->debug('Ask devices to Domoticz: '. $trendsurl);
                 $trendsurl = initPref($client) . $trendsurl;                
+                my $options;
+                if ($prefs->client($client)->get('insecure')) {
+                    $options = { SSL_verify_mode => Net::SSLeay::VERIFY_NONE() };
+                }    
                 
                 my $http = Slim::Networking::SimpleAsyncHTTP->new(
                     \&_getDevicesOnlyFromDomoticzCallback,
@@ -865,6 +885,7 @@ sub _manageMacroStringQueue {
                     {
                             slimrequest  => $request,
                             cache    => 0, # optional, cache result of HTTP request
+                            options  => $options
                     }
                 );
 

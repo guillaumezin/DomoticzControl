@@ -29,6 +29,14 @@ PLUGIN_DOMOTICZCONTROL_SETTINGS_HTTPS
 	EN	Domoticz URL or IP address uses HTTPS
 	FR	L'URL ou l'adresse IP de Domoticz utilise HTTPS
 
+PLUGIN_DOMOTICZCONTROL_SETTINGS_INSECURE_TITLE
+	EN	Insecure HTTPS connection allowed
+	FR	Connexion HTTPS non sécurisée autorisée
+
+PLUGIN_DOMOTICZCONTROL_SETTINGS_DETAILS_INSECURE
+	EN	Do not verify Domoticz HTTPS certificate, if self-signed or if you have "Connect timed out" error messages
+	FR	Ne pas vérifier le certificat HTTPS de Domoticz, s'il est auto-signé ou si vous avez des messages d'erreur "Connect timed out"
+
 PLUGIN_DOMOTICZCONTROL_SETTINGS_PORT
 	EN	Domoticz URL or IP address port
 	FR	Port de l'URL ou de l'adresse IP de Domoticz

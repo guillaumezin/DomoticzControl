@@ -26,6 +26,9 @@
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_HTTPS" desc="" %]
                     <input type="checkbox" name="pref_https" id="https" value="1" [% IF prefs.pref_https %]checked="checked"[% END %]/>
                 [% END %]
+                [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_INSECURE_TITLE" desc="PLUGIN_DOMOTICZCONTROL_SETTINGS_DETAILS_INSECURE" %]
+                    <input type="checkbox" name="pref_insecure" id="insecure" value="1" [% IF prefs.pref_insecure %]checked="checked"[% END %]/>
+                [% END %]
                 [% WRAPPER setting title="PLUGIN_DOMOTICZCONTROL_SETTINGS_USER" desc="" %]
                     <input type="text" name="pref_user" id="user" value="[% prefs.pref_user %]"/>
                 [% END %]
