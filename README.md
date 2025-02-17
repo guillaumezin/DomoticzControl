@@ -8,7 +8,7 @@ The plugin can control ON/OFF, push, selector switches, dimmers, blinds and temp
 Installation
 ------------
 
-To install the plugin, add the repository URL https://guillaumezin.github.io/DomoticzControl/repo.xml to your squeezebox plugin settings page then activate the plugin.
+To install the plugin, add the repository URL http://guillaumezin.github.io/DomoticzControl/repo.xml to your squeezebox plugin settings page then activate the plugin.
 
 Usage
 -----
